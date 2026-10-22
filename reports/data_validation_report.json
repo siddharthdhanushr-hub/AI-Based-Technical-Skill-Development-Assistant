@@ -1,0 +1,57 @@
+{
+  "total_records": 2721,
+  "is_synthetic_ratio": 1.0,
+  "unique_students": 50,
+  "unique_topics": 6,
+  "duplicate_event_ids": 0,
+  "missing_value_summary": {
+    "event_id": 0,
+    "timestamp": 0,
+    "student_id": 0,
+    "topic_id": 0,
+    "event_type": 0,
+    "attempt_id": 606,
+    "question_id": 1546,
+    "confidence_score": 2550,
+    "selected_option": 1546,
+    "is_correct": 1546,
+    "response_time_seconds": 1414,
+    "quiz_score": 2251,
+    "revision_status": 2457,
+    "readiness_status": 2251,
+    "is_synthetic": 0
+  },
+  "invalid_range_counts": {
+    "confidence_score": 0,
+    "quiz_score": 0,
+    "response_time_seconds": 0
+  },
+  "event_type_distribution": {
+    "question_answered": 1175,
+    "quiz_started": 235,
+    "quiz_submitted": 235,
+    "quiz_result_calculated": 235,
+    "recommendation_displayed": 235,
+    "topic_selected": 171,
+    "confidence_assessment_submitted": 171,
+    "revision_opened": 132,
+    "revision_completed": 132
+  },
+  "confidence_stats": {
+    "mean": 50.81520467836257,
+    "std": 19.97327927769797,
+    "min": 8.4,
+    "max": 93.9
+  },
+  "quiz_score_stats": {
+    "mean": 59.659574468085104,
+    "std": 24.50123063420267,
+    "min": 0.0,
+    "max": 100.0
+  },
+  "confidence_quiz_correlation": 0.2511,
+  "validation_status": "WARNING",
+  "issues_detected": [
+    "Note: Dataset contains 100.0% synthetic bootstrap records."
+  ]
+}

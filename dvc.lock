@@ -1,0 +1,66 @@
+schema: '2.0'
+stages:
+  validate_data:
+    cmd: python -m src.data_validation
+    deps:
+    - path: data/raw/student_interactions_bootstrap.csv
+      hash: md5
+      md5: 9ab23743ab133d924210e21f729449a5
+      size: 348179
+    - path: src/data_validation.py
+      hash: md5
+      md5: 0e48516f8d28df959520bcf3aa4bd044
+      size: 10567
+    outs:
+    - path: reports/data_validation_report.json
+      hash: md5
+      md5: 623c846af49004eb9481dbb0a10df726
+      size: 1438
+  feature_engineering:
+    cmd: python -m src.features
+    deps:
+    - path: data/raw/student_interactions_bootstrap.csv
+      hash: md5
+      md5: 9ab23743ab133d924210e21f729449a5
+      size: 348179
+    - path: src/features.py
+      hash: md5
+      md5: 330d91b2bad4d93d2a6b465f9e18a595
+      size: 8810
+    outs:
+    - path: data/processed/pre_quiz_features.csv
+      hash: md5
+      md5: 64fbebe52e089d3d997bf7526dca21ed
+      size: 29161
+  train_and_track:
+    cmd: python -m src.mlops.mlflow_tracking
+    deps:
+    - path: data/processed/pre_quiz_features.csv
+      hash: md5
+      md5: 64fbebe52e089d3d997bf7526dca21ed
+      size: 29161
+    - path: src/evaluation.py
+      hash: md5
+      md5: 6bd4f4858b3d29e18571023dd35e968c
+      size: 3052
+    - path: src/mlops/mlflow_tracking.py
+      hash: md5
+      md5: 1e127b4af8a77c4db6c2365f07a7c72e
+      size: 8817
+    - path: src/models/baseline_models.py
+      hash: md5
+      md5: 79ec111228c4b5b05f3702002a1cc2c2
+      size: 6175
+    outs:
+    - path: models/mastery_classifier.joblib
+      hash: md5
+      md5: 829680326aa5ca18560b4432d3c562cd
+      size: 4193
+    - path: models/model_metadata.json
+      hash: md5
+      md5: dbf57e60cc4c9437f540478f4c28f14e
+      size: 2114
+    - path: reports/model_metrics.json
+      hash: md5
+      md5: 29587c81a813290545b7018ef652fc26
+      size: 614

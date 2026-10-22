@@ -197,3 +197,21 @@ def create_grouped_train_test_split(
     assert len(overlap) == 0, f"Critical Data Leakage: Student overlap detected in split: {overlap}"
 
     return train_df, test_df
+
+
+if __name__ == "__main__":
+    import os
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    raw_path = os.path.join(project_root, "data", "raw", "student_interactions_bootstrap.csv")
+    out_dir = os.path.join(project_root, "data", "processed")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "pre_quiz_features.csv")
+
+    print(f"Reading raw interaction events from {raw_path}...")
+    df_raw = pd.read_csv(raw_path)
+    print(f"Extracting leak-free pre-quiz features...")
+    df_features = extract_pre_quiz_features(df_raw)
+
+    df_features.to_csv(out_path, index=False)
+    print(f"Pre-quiz features successfully saved to: {out_path} ({len(df_features)} attempt observations)")
+

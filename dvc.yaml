@@ -1,0 +1,34 @@
+stages:
+  validate_data:
+    cmd: python -m src.data_validation
+    deps:
+      - src/data_validation.py
+      - data/raw/student_interactions_bootstrap.csv
+    outs:
+      - reports/data_validation_report.json:
+          cache: false
+
+  feature_engineering:
+    cmd: python -m src.features
+    deps:
+      - src/features.py
+      - data/raw/student_interactions_bootstrap.csv
+    outs:
+      - data/processed/pre_quiz_features.csv:
+          cache: false
+
+  train_and_track:
+    cmd: python -m src.mlops.mlflow_tracking
+    deps:
+      - src/mlops/mlflow_tracking.py
+      - src/models/baseline_models.py
+      - src/evaluation.py
+      - data/processed/pre_quiz_features.csv
+    outs:
+      - models/mastery_classifier.joblib:
+          cache: false
+      - models/model_metadata.json:
+          cache: false
+    metrics:
+      - reports/model_metrics.json:
+          cache: false

@@ -52,6 +52,7 @@ mlruns/
 # DVC local cache
 .dvc/cache
 .dvc/tmp/
+data/dvc_remote/
 
 # IDE / OS
 .idea/
