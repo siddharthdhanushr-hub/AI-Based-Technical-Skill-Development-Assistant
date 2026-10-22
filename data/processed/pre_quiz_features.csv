@@ -1,0 +1,236 @@
+student_id,topic_id,attempt_id,timestamp,confidence_score,completed_revision,revision_duration_seconds,prior_topic_attempts,prior_topic_avg_score,prior_global_attempts,prior_global_avg_score,target_score,target_mastery_band,target_mastery_label,target_passed
+std_sim_024,topic_mlflow_track_02,att_024_k_02_1,2026-10-01T12:38:12Z,51.0,1,222.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_024,topic_mlflow_track_02,att_024_k_02_2,2026-10-01T12:42:10Z,51.0,1,222.0,1,80.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_007,topic_superv_01,att_007_v_01_1,2026-10-01T13:44:46Z,39.9,1,191.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_045,topic_tree_ensembles_04,att_045_s_04_1,2026-10-01T15:44:15Z,59.7,1,155.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_041,topic_bias_var_02,att_041_r_02_1,2026-10-01T17:30:18Z,53.2,1,207.0,0,50.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_049,topic_tree_ensembles_04,att_049_s_04_1,2026-10-01T19:16:46Z,67.3,0,0.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_049,topic_tree_ensembles_04,att_049_s_04_2,2026-10-01T19:21:39Z,67.3,0,0.0,1,60.0,0,50.0,60.0,1,Developing,0
+std_sim_032,topic_superv_01,att_032_v_01_1,2026-10-01T19:53:49Z,15.7,1,169.0,0,50.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_018,topic_tree_ensembles_04,att_018_s_04_1,2026-10-01T20:04:08Z,55.8,1,103.0,0,50.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_041,topic_mlflow_track_02,att_041_k_02_1,2026-10-01T21:47:02Z,55.5,1,247.0,0,50.0,1,100.0,60.0,1,Developing,0
+std_sim_030,topic_eval_metrics_03,att_030_s_03_1,2026-10-02T09:16:56Z,66.1,0,0.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_030,topic_eval_metrics_03,att_030_s_03_2,2026-10-02T09:21:55Z,66.1,0,0.0,1,80.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_027,topic_dvc_version_01,att_027_n_01_1,2026-10-02T10:06:40Z,44.8,1,195.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_027,topic_dvc_version_01,att_027_n_01_2,2026-10-02T10:09:15Z,44.8,1,195.0,1,40.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_034,topic_eval_metrics_03,att_034_s_03_1,2026-10-02T11:02:39Z,70.9,1,259.0,0,50.0,0,50.0,20.0,0,Needs Revision,0
+std_sim_018,topic_superv_01,att_018_v_01_1,2026-10-02T11:14:45Z,54.7,1,91.0,0,50.0,1,100.0,100.0,2,Demonstrated Mastery,1
+std_sim_018,topic_superv_01,att_018_v_01_2,2026-10-02T11:19:16Z,54.7,1,91.0,1,100.0,1,100.0,40.0,0,Needs Revision,0
+std_sim_009,topic_tree_ensembles_04,att_009_s_04_1,2026-10-02T11:30:55Z,38.8,1,259.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_009,topic_tree_ensembles_04,att_009_s_04_2,2026-10-02T11:34:41Z,38.8,1,259.0,1,40.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_007,topic_tree_ensembles_04,att_007_s_04_1,2026-10-02T15:33:16Z,39.1,1,271.0,0,50.0,1,80.0,100.0,2,Demonstrated Mastery,1
+std_sim_006,topic_tree_ensembles_04,att_006_s_04_1,2026-10-02T15:33:32Z,37.7,1,105.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_013,topic_mlflow_track_02,att_013_k_02_1,2026-10-02T16:37:28Z,49.2,1,241.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_022,topic_mlflow_track_02,att_022_k_02_1,2026-10-02T16:46:50Z,48.9,1,219.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_022,topic_mlflow_track_02,att_022_k_02_2,2026-10-02T16:51:27Z,48.9,1,219.0,1,80.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_030,topic_tree_ensembles_04,att_030_s_04_1,2026-10-02T16:53:43Z,80.0,0,0.0,0,50.0,2,60.0,100.0,2,Demonstrated Mastery,1
+std_sim_009,topic_eval_metrics_03,att_009_s_03_1,2026-10-02T20:02:37Z,33.6,1,220.0,0,50.0,2,60.0,40.0,0,Needs Revision,0
+std_sim_009,topic_eval_metrics_03,att_009_s_03_2,2026-10-02T20:06:58Z,33.6,1,220.0,1,40.0,2,60.0,60.0,1,Developing,0
+std_sim_007,topic_mlflow_track_02,att_007_k_02_1,2026-10-02T20:41:39Z,45.4,1,139.0,0,50.0,2,90.0,60.0,1,Developing,0
+std_sim_034,topic_dvc_version_01,att_034_n_01_1,2026-10-02T21:36:04Z,62.2,0,0.0,0,50.0,1,20.0,80.0,2,Demonstrated Mastery,1
+std_sim_008,topic_tree_ensembles_04,att_008_s_04_1,2026-10-03T09:26:25Z,26.0,1,300.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_005,topic_eval_metrics_03,att_005_s_03_1,2026-10-03T09:29:47Z,50.4,1,320.0,0,50.0,0,50.0,20.0,0,Needs Revision,0
+std_sim_005,topic_eval_metrics_03,att_005_s_03_2,2026-10-03T09:35:38Z,50.4,1,320.0,1,20.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_038,topic_tree_ensembles_04,att_038_s_04_1,2026-10-03T11:20:54Z,27.2,1,119.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_020,topic_tree_ensembles_04,att_020_s_04_1,2026-10-03T12:30:01Z,28.1,1,217.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_020,topic_tree_ensembles_04,att_020_s_04_2,2026-10-03T12:33:41Z,28.1,1,217.0,1,60.0,0,50.0,60.0,1,Developing,0
+std_sim_001,topic_eval_metrics_03,att_001_s_03_1,2026-10-03T12:55:58Z,59.0,1,114.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_001,topic_eval_metrics_03,att_001_s_03_2,2026-10-03T13:00:17Z,59.0,1,114.0,1,60.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_017,topic_superv_01,att_017_v_01_1,2026-10-03T13:52:19Z,39.4,1,101.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_017,topic_superv_01,att_017_v_01_2,2026-10-03T13:56:58Z,39.4,1,101.0,1,40.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_047,topic_eval_metrics_03,att_047_s_03_1,2026-10-03T15:02:01Z,46.0,1,285.0,0,50.0,0,50.0,0.0,0,Needs Revision,0
+std_sim_047,topic_eval_metrics_03,att_047_s_03_2,2026-10-03T15:06:12Z,46.0,1,285.0,1,0.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_038,topic_bias_var_02,att_038_r_02_1,2026-10-03T16:41:10Z,25.1,1,218.0,0,50.0,1,40.0,20.0,0,Needs Revision,0
+std_sim_040,topic_superv_01,att_040_v_01_1,2026-10-03T19:38:37Z,23.6,1,104.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_012,topic_tree_ensembles_04,att_012_s_04_1,2026-10-03T20:05:15Z,38.6,1,113.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_012,topic_tree_ensembles_04,att_012_s_04_2,2026-10-03T20:09:45Z,38.6,1,113.0,1,60.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_021,topic_eval_metrics_03,att_021_s_03_1,2026-10-03T20:31:34Z,66.7,1,203.0,0,50.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_021,topic_eval_metrics_03,att_021_s_03_2,2026-10-03T20:34:59Z,66.7,1,203.0,1,100.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_031,topic_tree_ensembles_04,att_031_s_04_1,2026-10-04T09:36:56Z,35.2,1,160.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_031,topic_tree_ensembles_04,att_031_s_04_2,2026-10-04T09:41:26Z,35.2,1,160.0,1,40.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_001,topic_superv_01,att_001_v_01_1,2026-10-04T12:12:18Z,67.0,0,0.0,0,50.0,2,70.0,60.0,1,Developing,0
+std_sim_021,topic_bias_var_02,att_021_r_02_1,2026-10-04T12:45:06Z,70.9,0,0.0,0,50.0,2,100.0,80.0,2,Demonstrated Mastery,1
+std_sim_036,topic_dvc_version_01,att_036_n_01_1,2026-10-04T13:37:34Z,73.5,1,278.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_027,topic_tree_ensembles_04,att_027_s_04_1,2026-10-04T15:29:15Z,53.9,1,111.0,0,50.0,2,60.0,60.0,1,Developing,0
+std_sim_027,topic_tree_ensembles_04,att_027_s_04_2,2026-10-04T15:33:26Z,53.9,1,111.0,1,60.0,2,60.0,60.0,1,Developing,0
+std_sim_041,topic_tree_ensembles_04,att_041_s_04_1,2026-10-04T18:18:27Z,54.4,1,91.0,0,50.0,2,80.0,60.0,1,Developing,0
+std_sim_041,topic_tree_ensembles_04,att_041_s_04_2,2026-10-04T18:22:42Z,54.4,1,91.0,1,60.0,2,80.0,20.0,0,Needs Revision,0
+std_sim_044,topic_mlflow_track_02,att_044_k_02_1,2026-10-04T18:49:30Z,66.8,0,0.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_044,topic_mlflow_track_02,att_044_k_02_2,2026-10-04T18:53:34Z,66.8,0,0.0,1,60.0,0,50.0,60.0,1,Developing,0
+std_sim_033,topic_tree_ensembles_04,att_033_s_04_1,2026-10-04T20:11:21Z,80.1,0,0.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_035,topic_eval_metrics_03,att_035_s_03_1,2026-10-04T21:41:00Z,44.4,1,116.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_020,topic_eval_metrics_03,att_020_s_03_1,2026-10-04T21:55:17Z,35.2,1,145.0,0,50.0,2,60.0,20.0,0,Needs Revision,0
+std_sim_020,topic_eval_metrics_03,att_020_s_03_2,2026-10-04T21:59:46Z,35.2,1,145.0,1,20.0,2,60.0,40.0,0,Needs Revision,0
+std_sim_049,topic_superv_01,att_049_v_01_1,2026-10-05T09:25:03Z,73.1,0,0.0,0,50.0,2,60.0,60.0,1,Developing,0
+std_sim_033,topic_bias_var_02,att_033_r_02_1,2026-10-05T11:09:28Z,86.9,1,174.0,0,50.0,1,80.0,60.0,1,Developing,0
+std_sim_006,topic_mlflow_track_02,att_006_k_02_1,2026-10-05T15:41:14Z,31.7,1,275.0,0,50.0,1,40.0,60.0,1,Developing,0
+std_sim_016,topic_dvc_version_01,att_016_n_01_1,2026-10-05T15:49:02Z,70.8,0,0.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_031,topic_bias_var_02,att_031_r_02_1,2026-10-05T16:04:20Z,41.7,1,154.0,0,50.0,2,40.0,40.0,0,Needs Revision,0
+std_sim_008,topic_mlflow_track_02,att_008_k_02_1,2026-10-05T18:49:06Z,8.4,1,285.0,0,50.0,1,40.0,80.0,2,Demonstrated Mastery,1
+std_sim_027,topic_bias_var_02,att_027_r_02_1,2026-10-05T20:51:06Z,52.2,1,127.0,0,50.0,4,60.0,60.0,1,Developing,0
+std_sim_012,topic_eval_metrics_03,att_012_s_03_1,2026-10-06T09:17:09Z,46.5,1,107.0,0,50.0,2,70.0,60.0,1,Developing,0
+std_sim_045,topic_bias_var_02,att_045_r_02_1,2026-10-06T10:37:52Z,53.1,1,192.0,0,50.0,1,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_045,topic_bias_var_02,att_045_r_02_2,2026-10-06T10:42:38Z,53.1,1,192.0,1,80.0,1,60.0,60.0,1,Developing,0
+std_sim_045,topic_mlflow_track_02,att_045_k_02_1,2026-10-06T11:57:25Z,56.2,1,279.0,0,50.0,3,66.66666666666667,60.0,1,Developing,0
+std_sim_026,topic_mlflow_track_02,att_026_k_02_1,2026-10-06T12:30:26Z,64.5,0,0.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_007,topic_eval_metrics_03,att_007_s_03_1,2026-10-06T12:47:06Z,27.8,1,100.0,0,50.0,3,80.0,60.0,1,Developing,0
+std_sim_025,topic_dvc_version_01,att_025_n_01_1,2026-10-06T14:16:11Z,37.8,1,197.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_025,topic_dvc_version_01,att_025_n_01_2,2026-10-06T14:19:29Z,37.8,1,197.0,1,80.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_024,topic_superv_01,att_024_v_01_1,2026-10-06T15:24:25Z,65.2,0,0.0,0,50.0,2,60.0,60.0,1,Developing,0
+std_sim_042,topic_tree_ensembles_04,att_042_s_04_1,2026-10-06T15:26:29Z,74.4,1,265.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_036,topic_bias_var_02,att_036_r_02_1,2026-10-06T16:20:19Z,88.1,0,0.0,0,50.0,1,80.0,60.0,1,Developing,0
+std_sim_014,topic_superv_01,att_014_v_01_1,2026-10-06T17:30:21Z,45.1,1,268.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_014,topic_superv_01,att_014_v_01_2,2026-10-06T17:34:20Z,45.1,1,268.0,1,80.0,0,50.0,20.0,0,Needs Revision,0
+std_sim_050,topic_tree_ensembles_04,att_050_s_04_1,2026-10-06T17:49:30Z,43.7,1,208.0,0,50.0,0,50.0,20.0,0,Needs Revision,0
+std_sim_050,topic_tree_ensembles_04,att_050_s_04_2,2026-10-06T17:54:52Z,43.7,1,208.0,1,20.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_017,topic_tree_ensembles_04,att_017_s_04_1,2026-10-06T18:00:56Z,42.3,1,166.0,0,50.0,2,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_016,topic_superv_01,att_016_v_01_1,2026-10-06T18:02:05Z,62.1,0,0.0,0,50.0,1,40.0,40.0,0,Needs Revision,0
+std_sim_017,topic_tree_ensembles_04,att_017_s_04_2,2026-10-06T18:05:13Z,42.3,1,166.0,1,80.0,2,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_016,topic_superv_01,att_016_v_01_2,2026-10-06T18:05:48Z,62.1,0,0.0,1,40.0,1,40.0,60.0,1,Developing,0
+std_sim_016,topic_mlflow_track_02,att_016_k_02_1,2026-10-06T18:13:59Z,62.6,0,0.0,0,50.0,3,46.666666666666664,40.0,0,Needs Revision,0
+std_sim_016,topic_mlflow_track_02,att_016_k_02_2,2026-10-06T18:18:18Z,62.6,0,0.0,1,40.0,3,46.666666666666664,20.0,0,Needs Revision,0
+std_sim_027,topic_mlflow_track_02,att_027_k_02_1,2026-10-06T18:41:19Z,60.1,1,284.0,0,50.0,5,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_013,topic_tree_ensembles_04,att_013_s_04_1,2026-10-06T21:46:54Z,39.2,1,131.0,0,50.0,1,60.0,40.0,0,Needs Revision,0
+std_sim_029,topic_superv_01,att_029_v_01_1,2026-10-06T21:47:34Z,30.6,1,217.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_019,topic_tree_ensembles_04,att_019_s_04_1,2026-10-07T10:49:19Z,44.5,1,124.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_019,topic_tree_ensembles_04,att_019_s_04_2,2026-10-07T10:53:04Z,44.5,1,124.0,1,60.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_002,topic_superv_01,att_002_v_01_1,2026-10-07T13:10:02Z,79.2,0,0.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_012,topic_bias_var_02,att_012_r_02_1,2026-10-07T13:14:05Z,37.2,1,133.0,0,50.0,3,66.66666666666667,80.0,2,Demonstrated Mastery,1
+std_sim_012,topic_bias_var_02,att_012_r_02_2,2026-10-07T13:18:53Z,37.2,1,133.0,1,80.0,3,66.66666666666667,80.0,2,Demonstrated Mastery,1
+std_sim_035,topic_bias_var_02,att_035_r_02_1,2026-10-07T14:27:18Z,52.8,1,195.0,0,50.0,1,40.0,60.0,1,Developing,0
+std_sim_035,topic_bias_var_02,att_035_r_02_2,2026-10-07T14:31:37Z,52.8,1,195.0,1,60.0,1,40.0,60.0,1,Developing,0
+std_sim_047,topic_dvc_version_01,att_047_n_01_1,2026-10-07T14:37:59Z,28.9,1,319.0,0,50.0,2,20.0,40.0,0,Needs Revision,0
+std_sim_003,topic_eval_metrics_03,att_003_s_03_1,2026-10-07T15:37:54Z,55.3,1,255.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_037,topic_eval_metrics_03,att_037_s_03_1,2026-10-07T15:59:31Z,76.3,1,124.0,0,50.0,0,50.0,40.0,0,Needs Revision,0
+std_sim_010,topic_tree_ensembles_04,att_010_s_04_1,2026-10-07T18:49:27Z,27.6,1,110.0,0,50.0,0,50.0,20.0,0,Needs Revision,0
+std_sim_010,topic_tree_ensembles_04,att_010_s_04_2,2026-10-07T18:54:05Z,27.6,1,110.0,1,20.0,0,50.0,20.0,0,Needs Revision,0
+std_sim_045,topic_eval_metrics_03,att_045_s_03_1,2026-10-07T19:08:05Z,46.0,1,292.0,0,50.0,4,65.0,0.0,0,Needs Revision,0
+std_sim_045,topic_eval_metrics_03,att_045_s_03_2,2026-10-07T19:12:33Z,46.0,1,292.0,1,0.0,4,65.0,60.0,1,Developing,0
+std_sim_030,topic_mlflow_track_02,att_030_k_02_1,2026-10-07T19:17:25Z,74.8,1,174.0,0,50.0,3,73.33333333333333,80.0,2,Demonstrated Mastery,1
+std_sim_004,topic_dvc_version_01,att_004_n_01_1,2026-10-07T19:41:33Z,93.9,0,0.0,0,50.0,0,50.0,100.0,2,Demonstrated Mastery,1
+std_sim_010,topic_eval_metrics_03,att_010_s_03_1,2026-10-08T10:14:14Z,16.4,1,189.0,0,50.0,2,20.0,20.0,0,Needs Revision,0
+std_sim_010,topic_eval_metrics_03,att_010_s_03_2,2026-10-08T10:18:50Z,16.4,1,189.0,1,20.0,2,20.0,60.0,1,Developing,0
+std_sim_043,topic_eval_metrics_03,att_043_s_03_1,2026-10-08T10:49:36Z,36.8,1,105.0,0,50.0,0,50.0,0.0,0,Needs Revision,0
+std_sim_032,topic_mlflow_track_02,att_032_k_02_1,2026-10-08T11:58:07Z,15.9,1,285.0,0,50.0,1,100.0,60.0,1,Developing,0
+std_sim_049,topic_dvc_version_01,att_049_n_01_1,2026-10-08T13:47:22Z,66.4,0,0.0,0,50.0,3,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_022,topic_tree_ensembles_04,att_022_s_04_1,2026-10-08T14:37:47Z,41.3,1,171.0,0,50.0,2,90.0,80.0,2,Demonstrated Mastery,1
+std_sim_038,topic_dvc_version_01,att_038_n_01_1,2026-10-08T16:27:13Z,27.2,1,129.0,0,50.0,2,30.0,0.0,0,Needs Revision,0
+std_sim_038,topic_dvc_version_01,att_038_n_01_2,2026-10-08T16:32:13Z,27.2,1,129.0,1,0.0,2,30.0,20.0,0,Needs Revision,0
+std_sim_018,topic_bias_var_02,att_018_r_02_1,2026-10-08T17:52:33Z,52.4,1,118.0,0,50.0,3,80.0,80.0,2,Demonstrated Mastery,1
+std_sim_028,topic_tree_ensembles_04,att_028_s_04_1,2026-10-08T17:54:44Z,84.4,0,0.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_025,topic_superv_01,att_025_v_01_1,2026-10-08T18:44:41Z,31.1,1,120.0,0,50.0,2,80.0,40.0,0,Needs Revision,0
+std_sim_035,topic_mlflow_track_02,att_035_k_02_1,2026-10-08T19:41:21Z,62.9,0,0.0,0,50.0,3,53.333333333333336,60.0,1,Developing,0
+std_sim_042,topic_mlflow_track_02,att_042_k_02_1,2026-10-08T21:51:56Z,74.3,0,0.0,0,50.0,1,40.0,100.0,2,Demonstrated Mastery,1
+std_sim_003,topic_mlflow_track_02,att_003_k_02_1,2026-10-09T09:12:38Z,56.5,1,132.0,0,50.0,1,80.0,100.0,2,Demonstrated Mastery,1
+std_sim_003,topic_mlflow_track_02,att_003_k_02_2,2026-10-09T09:16:51Z,56.5,1,132.0,1,100.0,1,80.0,100.0,2,Demonstrated Mastery,1
+std_sim_036,topic_eval_metrics_03,att_036_s_03_1,2026-10-09T10:10:12Z,73.3,0,0.0,0,50.0,2,70.0,40.0,0,Needs Revision,0
+std_sim_043,topic_superv_01,att_043_v_01_1,2026-10-09T10:23:20Z,34.1,1,182.0,0,50.0,1,0.0,40.0,0,Needs Revision,0
+std_sim_037,topic_bias_var_02,att_037_r_02_1,2026-10-09T10:40:48Z,79.6,0,0.0,0,50.0,1,40.0,40.0,0,Needs Revision,0
+std_sim_023,topic_superv_01,att_023_v_01_1,2026-10-09T10:47:07Z,12.0,1,300.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_023,topic_superv_01,att_023_v_01_2,2026-10-09T10:52:05Z,12.0,1,300.0,1,80.0,0,50.0,0.0,0,Needs Revision,0
+std_sim_011,topic_dvc_version_01,att_011_n_01_1,2026-10-09T10:53:18Z,69.9,0,0.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_036,topic_mlflow_track_02,att_036_k_02_1,2026-10-09T14:09:09Z,85.6,0,0.0,0,50.0,3,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_026,topic_tree_ensembles_04,att_026_s_04_1,2026-10-09T14:11:25Z,56.2,1,184.0,0,50.0,1,60.0,60.0,1,Developing,0
+std_sim_013,topic_bias_var_02,att_013_r_02_1,2026-10-09T15:51:01Z,52.4,1,261.0,0,50.0,2,50.0,60.0,1,Developing,0
+std_sim_029,topic_dvc_version_01,att_029_n_01_1,2026-10-09T16:10:48Z,32.8,1,296.0,0,50.0,1,60.0,40.0,0,Needs Revision,0
+std_sim_046,topic_bias_var_02,att_046_r_02_1,2026-10-09T16:43:36Z,76.9,1,168.0,0,50.0,0,50.0,60.0,1,Developing,0
+std_sim_030,topic_bias_var_02,att_030_r_02_1,2026-10-09T17:03:19Z,80.1,0,0.0,0,50.0,4,75.0,60.0,1,Developing,0
+std_sim_041,topic_dvc_version_01,att_041_n_01_1,2026-10-09T17:39:13Z,50.4,1,178.0,0,50.0,4,60.0,40.0,0,Needs Revision,0
+std_sim_041,topic_dvc_version_01,att_041_n_01_2,2026-10-09T17:43:35Z,50.4,1,178.0,1,40.0,4,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_010,topic_dvc_version_01,att_010_n_01_1,2026-10-09T18:07:31Z,17.2,1,301.0,0,50.0,4,30.0,20.0,0,Needs Revision,0
+std_sim_010,topic_dvc_version_01,att_010_n_01_2,2026-10-09T18:11:25Z,17.2,1,301.0,1,20.0,4,30.0,40.0,0,Needs Revision,0
+std_sim_044,topic_eval_metrics_03,att_044_s_03_1,2026-10-09T19:34:07Z,80.7,0,0.0,0,50.0,2,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_042,topic_dvc_version_01,att_042_n_01_1,2026-10-09T21:15:54Z,67.5,1,316.0,0,50.0,2,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_042,topic_dvc_version_01,att_042_n_01_2,2026-10-09T21:20:03Z,67.5,1,316.0,1,80.0,2,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_039,topic_mlflow_track_02,att_039_k_02_1,2026-10-09T21:32:44Z,50.7,1,315.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_008,topic_bias_var_02,att_008_r_02_1,2026-10-10T10:03:46Z,15.8,1,154.0,0,50.0,2,60.0,40.0,0,Needs Revision,0
+std_sim_021,topic_tree_ensembles_04,att_021_s_04_1,2026-10-10T12:36:12Z,62.5,1,175.0,0,50.0,3,93.33333333333333,60.0,1,Developing,0
+std_sim_021,topic_tree_ensembles_04,att_021_s_04_2,2026-10-10T12:40:01Z,62.5,1,175.0,1,60.0,3,93.33333333333333,40.0,0,Needs Revision,0
+std_sim_018,topic_eval_metrics_03,att_018_s_03_1,2026-10-10T12:40:30Z,59.9,1,134.0,0,50.0,4,80.0,40.0,0,Needs Revision,0
+std_sim_018,topic_eval_metrics_03,att_018_s_03_2,2026-10-10T12:44:35Z,59.9,1,134.0,1,40.0,4,80.0,60.0,1,Developing,0
+std_sim_011,topic_superv_01,att_011_v_01_1,2026-10-10T12:56:48Z,86.1,0,0.0,0,50.0,1,80.0,80.0,2,Demonstrated Mastery,1
+std_sim_014,topic_mlflow_track_02,att_014_k_02_1,2026-10-10T15:18:48Z,42.1,1,182.0,0,50.0,2,50.0,40.0,0,Needs Revision,0
+std_sim_012,topic_dvc_version_01,att_012_n_01_1,2026-10-10T16:33:35Z,34.6,1,119.0,0,50.0,5,72.0,80.0,2,Demonstrated Mastery,1
+std_sim_012,topic_dvc_version_01,att_012_n_01_2,2026-10-10T16:38:25Z,34.6,1,119.0,1,80.0,5,72.0,80.0,2,Demonstrated Mastery,1
+std_sim_003,topic_superv_01,att_003_v_01_1,2026-10-10T17:21:37Z,49.7,1,271.0,0,50.0,3,93.33333333333333,100.0,2,Demonstrated Mastery,1
+std_sim_049,topic_bias_var_02,att_049_r_02_1,2026-10-10T17:39:43Z,55.5,1,230.0,0,50.0,4,65.0,100.0,2,Demonstrated Mastery,1
+std_sim_049,topic_bias_var_02,att_049_r_02_2,2026-10-10T17:44:26Z,55.5,1,230.0,1,100.0,4,65.0,80.0,2,Demonstrated Mastery,1
+std_sim_030,topic_dvc_version_01,att_030_n_01_1,2026-10-10T17:58:47Z,74.1,1,134.0,0,50.0,5,72.0,60.0,1,Developing,0
+std_sim_031,topic_eval_metrics_03,att_031_s_03_1,2026-10-10T18:53:16Z,48.0,1,317.0,0,50.0,3,40.0,60.0,1,Developing,0
+std_sim_031,topic_eval_metrics_03,att_031_s_03_2,2026-10-10T18:57:15Z,48.0,1,317.0,1,60.0,3,40.0,40.0,0,Needs Revision,0
+std_sim_007,topic_dvc_version_01,att_007_n_01_1,2026-10-10T19:31:24Z,33.1,1,136.0,0,50.0,4,75.0,60.0,1,Developing,0
+std_sim_007,topic_dvc_version_01,att_007_n_01_2,2026-10-10T19:34:43Z,33.1,1,136.0,1,60.0,4,75.0,100.0,2,Demonstrated Mastery,1
+std_sim_008,topic_dvc_version_01,att_008_n_01_1,2026-10-10T19:59:49Z,25.9,1,229.0,0,50.0,3,53.333333333333336,60.0,1,Developing,0
+std_sim_028,topic_eval_metrics_03,att_028_s_03_1,2026-10-10T21:28:32Z,81.8,0,0.0,0,50.0,1,80.0,60.0,1,Developing,0
+std_sim_020,topic_bias_var_02,att_020_r_02_1,2026-10-10T21:53:12Z,39.8,1,314.0,0,50.0,4,45.0,20.0,0,Needs Revision,0
+std_sim_021,topic_superv_01,att_021_v_01_1,2026-10-11T09:49:49Z,63.8,0,0.0,0,50.0,5,76.0,40.0,0,Needs Revision,0
+std_sim_021,topic_superv_01,att_021_v_01_2,2026-10-11T09:54:19Z,63.8,0,0.0,1,40.0,5,76.0,40.0,0,Needs Revision,0
+std_sim_050,topic_superv_01,att_050_v_01_1,2026-10-11T11:38:23Z,52.9,1,237.0,0,50.0,2,60.0,60.0,1,Developing,0
+std_sim_050,topic_superv_01,att_050_v_01_2,2026-10-11T11:42:29Z,52.9,1,237.0,1,60.0,2,60.0,100.0,2,Demonstrated Mastery,1
+std_sim_013,topic_eval_metrics_03,att_013_s_03_1,2026-10-11T12:26:30Z,48.6,1,105.0,0,50.0,3,53.333333333333336,0.0,0,Needs Revision,0
+std_sim_013,topic_eval_metrics_03,att_013_s_03_2,2026-10-11T12:31:07Z,48.6,1,105.0,1,0.0,3,53.333333333333336,60.0,1,Developing,0
+std_sim_015,topic_dvc_version_01,att_015_n_01_1,2026-10-11T13:24:07Z,49.9,1,217.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_015,topic_dvc_version_01,att_015_n_01_2,2026-10-11T13:28:23Z,49.9,1,217.0,1,80.0,0,50.0,60.0,1,Developing,0
+std_sim_042,topic_eval_metrics_03,att_042_s_03_1,2026-10-11T15:21:55Z,83.1,0,0.0,0,50.0,4,75.0,40.0,0,Needs Revision,0
+std_sim_040,topic_dvc_version_01,att_040_n_01_1,2026-10-11T15:42:12Z,31.2,1,268.0,0,50.0,1,40.0,60.0,1,Developing,0
+std_sim_040,topic_dvc_version_01,att_040_n_01_2,2026-10-11T15:46:16Z,31.2,1,268.0,1,60.0,1,40.0,100.0,2,Demonstrated Mastery,1
+std_sim_035,topic_dvc_version_01,att_035_n_01_1,2026-10-11T16:30:58Z,51.0,1,306.0,0,50.0,4,55.0,80.0,2,Demonstrated Mastery,1
+std_sim_035,topic_dvc_version_01,att_035_n_01_2,2026-10-11T16:35:48Z,51.0,1,306.0,1,80.0,4,55.0,100.0,2,Demonstrated Mastery,1
+std_sim_040,topic_bias_var_02,att_040_r_02_1,2026-10-11T17:24:17Z,26.2,1,206.0,0,50.0,3,66.66666666666667,60.0,1,Developing,0
+std_sim_005,topic_bias_var_02,att_005_r_02_1,2026-10-11T17:33:05Z,56.7,1,174.0,0,50.0,2,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_022,topic_dvc_version_01,att_022_n_01_1,2026-10-11T19:38:06Z,47.2,1,316.0,0,50.0,3,86.66666666666667,100.0,2,Demonstrated Mastery,1
+std_sim_005,topic_mlflow_track_02,att_005_k_02_1,2026-10-11T20:03:12Z,48.3,1,306.0,0,50.0,3,66.66666666666667,60.0,1,Developing,0
+std_sim_019,topic_dvc_version_01,att_019_n_01_1,2026-10-11T21:28:22Z,39.7,1,299.0,0,50.0,2,80.0,60.0,1,Developing,0
+std_sim_009,topic_dvc_version_01,att_009_n_01_1,2026-10-11T21:59:13Z,43.6,1,99.0,0,50.0,4,55.0,40.0,0,Needs Revision,0
+std_sim_042,topic_bias_var_02,att_042_r_02_1,2026-10-12T11:07:19Z,69.7,0,0.0,0,50.0,5,68.0,60.0,1,Developing,0
+std_sim_033,topic_superv_01,att_033_v_01_1,2026-10-12T11:22:42Z,89.8,1,259.0,0,50.0,2,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_006,topic_superv_01,att_006_v_01_1,2026-10-12T13:40:27Z,37.3,1,193.0,0,50.0,2,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_006,topic_superv_01,att_006_v_01_2,2026-10-12T13:45:07Z,37.3,1,193.0,1,80.0,2,50.0,60.0,1,Developing,0
+std_sim_041,topic_superv_01,att_041_v_01_1,2026-10-12T14:10:47Z,56.4,1,170.0,0,50.0,6,60.0,20.0,0,Needs Revision,0
+std_sim_041,topic_superv_01,att_041_v_01_2,2026-10-12T14:16:43Z,56.4,1,170.0,1,20.0,6,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_029,topic_bias_var_02,att_029_r_02_1,2026-10-12T15:59:06Z,39.0,1,171.0,0,50.0,2,50.0,20.0,0,Needs Revision,0
+std_sim_044,topic_dvc_version_01,att_044_n_01_1,2026-10-12T16:22:29Z,82.8,0,0.0,0,50.0,3,66.66666666666667,80.0,2,Demonstrated Mastery,1
+std_sim_023,topic_eval_metrics_03,att_023_s_03_1,2026-10-12T16:50:30Z,23.0,1,293.0,0,50.0,2,40.0,40.0,0,Needs Revision,0
+std_sim_043,topic_dvc_version_01,att_043_n_01_1,2026-10-12T16:51:56Z,24.6,1,93.0,0,50.0,2,20.0,60.0,1,Developing,0
+std_sim_023,topic_eval_metrics_03,att_023_s_03_2,2026-10-12T16:55:36Z,23.0,1,293.0,1,40.0,2,40.0,60.0,1,Developing,0
+std_sim_043,topic_dvc_version_01,att_043_n_01_2,2026-10-12T16:56:34Z,24.6,1,93.0,1,60.0,2,20.0,60.0,1,Developing,0
+std_sim_002,topic_dvc_version_01,att_002_n_01_1,2026-10-12T16:57:39Z,76.3,0,0.0,0,50.0,1,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_034,topic_tree_ensembles_04,att_034_s_04_1,2026-10-12T19:37:12Z,71.1,0,0.0,0,50.0,2,50.0,0.0,0,Needs Revision,0
+std_sim_034,topic_mlflow_track_02,att_034_k_02_1,2026-10-12T20:12:06Z,75.4,1,241.0,0,50.0,3,33.333333333333336,40.0,0,Needs Revision,0
+std_sim_002,topic_bias_var_02,att_002_r_02_1,2026-10-13T10:03:28Z,77.1,1,242.0,0,50.0,2,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_002,topic_mlflow_track_02,att_002_k_02_1,2026-10-13T11:37:02Z,93.2,0,0.0,0,50.0,3,73.33333333333333,60.0,1,Developing,0
+std_sim_049,topic_eval_metrics_03,att_049_s_03_1,2026-10-13T13:06:58Z,55.3,1,294.0,0,50.0,6,73.33333333333333,40.0,0,Needs Revision,0
+std_sim_049,topic_eval_metrics_03,att_049_s_03_2,2026-10-13T13:10:17Z,55.3,1,294.0,1,40.0,6,73.33333333333333,80.0,2,Demonstrated Mastery,1
+std_sim_048,topic_dvc_version_01,att_048_n_01_1,2026-10-13T13:29:38Z,27.8,1,284.0,0,50.0,0,50.0,80.0,2,Demonstrated Mastery,1
+std_sim_048,topic_dvc_version_01,att_048_n_01_2,2026-10-13T13:34:01Z,27.8,1,284.0,1,80.0,0,50.0,60.0,1,Developing,0
+std_sim_039,topic_bias_var_02,att_039_r_02_1,2026-10-13T17:03:38Z,55.1,1,202.0,0,50.0,1,80.0,80.0,2,Demonstrated Mastery,1
+std_sim_020,topic_dvc_version_01,att_020_n_01_1,2026-10-13T17:39:22Z,28.3,1,309.0,0,50.0,5,40.0,40.0,0,Needs Revision,0
+std_sim_048,topic_bias_var_02,att_048_r_02_1,2026-10-13T20:09:55Z,28.8,1,163.0,0,50.0,2,70.0,60.0,1,Developing,0
+std_sim_032,topic_bias_var_02,att_032_r_02_1,2026-10-13T22:01:21Z,22.7,1,264.0,0,50.0,2,80.0,40.0,0,Needs Revision,0
+std_sim_021,topic_dvc_version_01,att_021_n_01_1,2026-10-14T10:25:26Z,72.5,0,0.0,0,50.0,7,65.71428571428571,60.0,1,Developing,0
+std_sim_015,topic_tree_ensembles_04,att_015_s_04_1,2026-10-14T11:41:30Z,36.6,1,173.0,0,50.0,2,70.0,20.0,0,Needs Revision,0
+std_sim_014,topic_dvc_version_01,att_014_n_01_1,2026-10-14T11:43:03Z,47.6,1,198.0,0,50.0,3,46.666666666666664,80.0,2,Demonstrated Mastery,1
+std_sim_015,topic_tree_ensembles_04,att_015_s_04_2,2026-10-14T11:46:30Z,36.6,1,173.0,1,20.0,2,70.0,40.0,0,Needs Revision,0
+std_sim_014,topic_tree_ensembles_04,att_014_s_04_1,2026-10-14T12:56:34Z,40.9,1,103.0,0,50.0,4,55.0,20.0,0,Needs Revision,0
+std_sim_014,topic_tree_ensembles_04,att_014_s_04_2,2026-10-14T13:00:17Z,40.9,1,103.0,1,20.0,4,55.0,40.0,0,Needs Revision,0
+std_sim_010,topic_bias_var_02,att_010_r_02_1,2026-10-14T13:57:00Z,27.7,1,146.0,0,50.0,6,30.0,40.0,0,Needs Revision,0
+std_sim_023,topic_tree_ensembles_04,att_023_s_04_1,2026-10-14T16:47:21Z,10.8,1,214.0,0,50.0,4,45.0,60.0,1,Developing,0
+std_sim_023,topic_dvc_version_01,att_023_n_01_1,2026-10-14T16:47:42Z,13.2,1,247.0,0,50.0,5,48.0,60.0,1,Developing,0
+std_sim_009,topic_mlflow_track_02,att_009_k_02_1,2026-10-14T17:35:13Z,49.6,1,313.0,0,50.0,5,52.0,60.0,1,Developing,0
+std_sim_006,topic_dvc_version_01,att_006_n_01_1,2026-10-14T21:05:46Z,41.2,1,204.0,0,50.0,4,60.0,80.0,2,Demonstrated Mastery,1
+std_sim_006,topic_eval_metrics_03,att_006_s_03_1,2026-10-14T21:13:37Z,40.2,1,237.0,0,50.0,5,64.0,40.0,0,Needs Revision,0
+std_sim_023,topic_bias_var_02,att_023_r_02_1,2026-10-15T09:24:33Z,27.1,1,153.0,0,50.0,6,50.0,60.0,1,Developing,0
+std_sim_011,topic_bias_var_02,att_011_r_02_1,2026-10-15T10:29:12Z,80.8,1,252.0,0,50.0,2,80.0,100.0,2,Demonstrated Mastery,1
+std_sim_032,topic_dvc_version_01,att_032_n_01_1,2026-10-15T12:40:54Z,13.1,1,225.0,0,50.0,3,66.66666666666667,40.0,0,Needs Revision,0
+std_sim_032,topic_dvc_version_01,att_032_n_01_2,2026-10-15T12:45:27Z,13.1,1,225.0,1,40.0,3,66.66666666666667,20.0,0,Needs Revision,0
+std_sim_004,topic_superv_01,att_004_v_01_1,2026-10-15T15:00:15Z,84.0,0,0.0,0,50.0,1,100.0,80.0,2,Demonstrated Mastery,1
+std_sim_045,topic_dvc_version_01,att_045_n_01_1,2026-10-15T15:06:15Z,47.9,1,195.0,0,50.0,6,53.333333333333336,20.0,0,Needs Revision,0
+std_sim_045,topic_dvc_version_01,att_045_n_01_2,2026-10-15T15:10:39Z,47.9,1,195.0,1,20.0,6,53.333333333333336,80.0,2,Demonstrated Mastery,1
+std_sim_046,topic_mlflow_track_02,att_046_k_02_1,2026-10-15T15:47:04Z,61.1,0,0.0,0,50.0,1,60.0,60.0,1,Developing,0
+std_sim_043,topic_tree_ensembles_04,att_043_s_04_1,2026-10-15T16:57:22Z,34.0,1,294.0,0,50.0,4,40.0,60.0,1,Developing,0
+std_sim_043,topic_tree_ensembles_04,att_043_s_04_2,2026-10-15T17:00:21Z,34.0,1,294.0,1,60.0,4,40.0,60.0,1,Developing,0
+std_sim_047,topic_superv_01,att_047_v_01_1,2026-10-15T17:04:54Z,40.8,1,311.0,0,50.0,3,26.666666666666668,60.0,1,Developing,0
+std_sim_047,topic_superv_01,att_047_v_01_2,2026-10-15T17:09:52Z,40.8,1,311.0,1,60.0,3,26.666666666666668,80.0,2,Demonstrated Mastery,1
+std_sim_048,topic_mlflow_track_02,att_048_k_02_1,2026-10-15T17:22:59Z,32.8,1,102.0,0,50.0,3,66.66666666666667,40.0,0,Needs Revision,0
+std_sim_018,topic_dvc_version_01,att_018_n_01_1,2026-10-15T17:31:53Z,56.1,1,295.0,0,50.0,6,70.0,80.0,2,Demonstrated Mastery,1
+std_sim_018,topic_dvc_version_01,att_018_n_01_2,2026-10-15T17:36:41Z,56.1,1,295.0,1,80.0,6,70.0,60.0,1,Developing,0
