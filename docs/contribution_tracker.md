@@ -1,0 +1,31 @@
+# Shared Project Contribution Tracker — Phase 1
+
+This tracker documents individual ownership, specific tasks, implementation evidence, and status across all four project team members.
+
+---
+
+## Team Roster
+- **Member 1 — Shreyas**: Data Acquisition, Data Quality, Schema Validation, and Exploratory Data Analysis.
+- **Member 2 — Shreyash Singh**: Feature Engineering, Baseline Modeling, Model Comparison, and Evaluation.
+- **Member 3 — Siddharth Chandrashekar C**: Student-Facing Learning Interface, Revision/Flashcards, and Quiz Experience.
+- **Member 4 — Siddharth Dhanush R (Project Lead)**: Central Integration, Backend Orchestration, MLOps, DVC, and MLflow Reproducibility.
+
+---
+
+## Workstream Activity Log
+
+| Member | Task ID | Task Title | Status | Branch | Deliverables & Artifacts | Evidence & Notes |
+|---|---|---|---|---|---|---|
+| **Member 4** | ARCH-01 | Architecture, Contracts, & Base Scaffold | **Done** | `main` | `docs/architecture.md`, `docs/api_contract.md`, `docs/data_schema.md`, `frontend/`, `requirements.txt`, `.gitignore` | Initialized repository foundation, contracts, and frontend reference scaffold. |
+| **Member 1** | DATA-01 | Interaction Event Schema & Quality Validator | **In Progress** | `feature/data-acquisition-eda` | `src/data_validation.py`, `tests/test_data_validation.py` | Implementation of Pydantic validation rules, duplicate detection, range checks. |
+| **Member 1** | DATA-02 | Bootstrap Dataset Generation (Explicit Synthetic) | **In Progress** | `feature/data-acquisition-eda` | `data/raw/student_interactions_bootstrap.csv`, `src/data/generate_bootstrap_dataset.py` | 1,200 simulated learning events across 6 topics with explicit synthetic metadata flag. |
+| **Member 1** | DATA-03 | Exploratory Data Analysis (EDA) Notebook | **In Progress** | `feature/data-acquisition-eda` | `notebooks/01_dataset_acquisition_eda.ipynb` | Comprehensive correlation, class balance, overconfidence vs underconfidence analysis. |
+| **Member 1** | DATA-04 | Dataset Documentation & Approval Record | **In Progress** | `feature/data-acquisition-eda` | `reports/dataset_card.md`, `reports/data_dictionary.md`, `reports/dataset_approval_record.md` | Complete data dictionary, dataset card, and Phase 1 approval record. |
+| **Member 2** | ML-01 | Feature Engineering & Leakage-Free Preprocessing | **Todo** | `feature/feature-engineering-baselines` | `src/features.py`, `tests/test_features.py` | Planned: Extract pre-quiz features (confidence, historical accuracy, prior attempts). |
+| **Member 2** | ML-02 | Baseline Model Comparison & Evaluation | **Todo** | `feature/feature-engineering-baselines` | `02_feature_engineering_baselines.ipynb`, `reports/initial_model_evaluation.md` | Planned: Dummy, Logistic Regression, Decision Tree, Random Forest benchmarks. |
+| **Member 3** | UI-01 | Student Dashboard & Topic Explorer | **Todo** | `feature/frontend-learning-flow` | `frontend/src/pages/Dashboard.jsx`, `TopicSelection.jsx` | Planned: Subject & topic browsing, course navigation. |
+| **Member 3** | UI-02 | Confidence Assessment & Revision Flow | **Todo** | `feature/frontend-learning-flow` | `ConfidenceAssessment.jsx`, `RevisionView.jsx` | Planned: 0–100 confidence slider, flashcard flipping, concept summary view. |
+| **Member 3** | UI-03 | Interactive Quiz Engine & Feedback | **Todo** | `feature/frontend-learning-flow` | `QuizView.jsx`, `ResultView.jsx` | Planned: Question display, immediate answer check, readiness badge. |
+| **Member 4** | MLOPS-01 | DVC Dataset Versioning & Pipeline | **Todo** | `feature/backend-mlops-integration` | `dvc.yaml`, `dvc.lock`, `.dvc/config` | Planned: Reproducible DVC pipeline stages (`validate`, `preprocess`, `train`). |
+| **Member 4** | MLOPS-02 | MLflow Experiment Tracking & Logging | **Todo** | `feature/backend-mlops-integration` | `src/mlflow_utils.py`, `notebooks/04_mlops_reproducibility.ipynb` | Planned: Local MLflow tracking of runs, parameters, metrics, artifacts. |
+| **Member 4** | INT-01 | FastAPI Endpoints & Database Persistence | **Todo** | `feature/backend-mlops-integration` | `backend/main.py`, `backend/routes/`, `backend/models/` | Planned: REST API connecting frontend to data store and model inference. |
