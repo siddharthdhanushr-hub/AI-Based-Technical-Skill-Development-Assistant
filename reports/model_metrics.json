@@ -1,0 +1,28 @@
+{
+  "champion_model": "Logistic Regression",
+  "champion_macro_f1": 0.5268,
+  "champion_accuracy": 0.5397,
+  "champion_weighted_f1": 0.5353,
+  "all_models": {
+    "Dummy (Most Frequent)": {
+      "macro_f1": 0.1417,
+      "accuracy": 0.2698
+    },
+    "Dummy (Stratified)": {
+      "macro_f1": 0.3486,
+      "accuracy": 0.3492
+    },
+    "Logistic Regression": {
+      "macro_f1": 0.5268,
+      "accuracy": 0.5397
+    },
+    "Decision Tree": {
+      "macro_f1": 0.4531,
+      "accuracy": 0.4762
+    },
+    "Random Forest": {
+      "macro_f1": 0.4938,
+      "accuracy": 0.4921
+    }
+  }
+}

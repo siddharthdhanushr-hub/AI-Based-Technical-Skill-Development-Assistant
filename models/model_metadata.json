@@ -1,5 +1,7 @@
 {
   "best_model": "Logistic Regression",
+  "best_run_id": "fab578512b9e42a9bb89cc4bf9352f0b",
+  "experiment_name": "technical_skill_mastery_baselines",
   "metrics": {
     "accuracy": 0.5397,
     "balanced_accuracy": 0.5338,
@@ -86,6 +88,8 @@
     "Demonstrated Mastery"
   ],
   "is_synthetic": true,
+  "leakage_free": true,
+  "split_group": "student_id",
   "train_samples": 172,
   "test_samples": 63
 }

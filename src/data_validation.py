@@ -216,3 +216,24 @@ class DataQualityValidator:
             validation_status=status,
             issues_detected=issues
         )
+
+
+if __name__ == "__main__":
+    import os
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    data_path = os.path.join(project_root, "data", "raw", "student_interactions_bootstrap.csv")
+    out_dir = os.path.join(project_root, "reports")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "data_validation_report.json")
+
+    print(f"Loading raw interactions from {data_path}...")
+    df = pd.read_csv(data_path)
+    report = DataQualityValidator.validate_dataframe(df)
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(report.model_dump_json(indent=2))
+
+    print(f"Validation status: {report.validation_status}")
+    print(f"Total records validated: {report.total_records}")
+    print(f"Validation report saved to: {out_path}")
+
