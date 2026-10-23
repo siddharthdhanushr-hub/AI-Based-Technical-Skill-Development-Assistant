@@ -58,12 +58,14 @@ def root():
     }
 
 
+@app.get("/health")
 @app.get("/api/health")
 def health_check():
     return {
         "status": "healthy",
         "database": "sqlite",
-        "ml_inference": "active"
+        "ml_inference": "active",
+        "service": "AI-Based Technical Skill Development Assistant"
     }
 
 
