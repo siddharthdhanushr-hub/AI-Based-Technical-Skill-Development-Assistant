@@ -1,0 +1,24 @@
+{
+  "decision_tree": {
+    "accuracy": 0.7204,
+    "precision": 0.7238,
+    "recall": 0.6344,
+    "f1_score": 0.6762,
+    "roc_auc": 0.7885
+  },
+  "random_forest": {
+    "accuracy": 0.7351,
+    "precision": 0.7211,
+    "recall": 0.6917,
+    "f1_score": 0.7061,
+    "roc_auc": 0.7949
+  },
+  "logistic_regression": {
+    "accuracy": 0.7345,
+    "precision": 0.7117,
+    "recall": 0.7108,
+    "f1_score": 0.7113,
+    "roc_auc": 0.7974
+  },
+  "champion_model": "Random Forest"
+}

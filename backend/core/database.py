@@ -1,22 +1,13 @@
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-data_dir = os.path.join(project_root, "data")
-os.makedirs(data_dir, exist_ok=True)
-
-DATABASE_URL = f"sqlite:///{os.path.join(data_dir, 'app.db')}"
+from .config import settings
 
 engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    settings.DATABASE_URL, connect_args={"check_same_thread": False, "timeout": 15}
 )
-
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-
 
 def get_db():
     db = SessionLocal()
@@ -24,3 +15,23 @@ def get_db():
         yield db
     finally:
         db.close()
+
+import threading
+from sqlalchemy import event
+
+def run_export_async():
+    def _export():
+        try:
+            from backend.core.exporter import export_db_to_csv
+            db = SessionLocal()
+            try:
+                export_db_to_csv(db)
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Background CSV export failed: {e}")
+    threading.Thread(target=_export, daemon=True).start()
+
+@event.listens_for(SessionLocal, 'after_commit')
+def receive_after_commit(session):
+    run_export_async()

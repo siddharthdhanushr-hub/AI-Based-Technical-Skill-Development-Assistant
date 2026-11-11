@@ -1,0 +1,5 @@
+prediction_id,student_id,mcq_accuracy,avg_response_time,skip_count,topic_mastery,exam_readiness_prob,timestamp
+1,1,43.09,60.17,4,Weak,0.02,2026-11-08 10:56:32.446916
+2,1,100.0,12.5,0,Moderate,1.0,2026-11-08 11:14:08.690491
+3,1,33.33,14.17,0,Weak,0.36,2026-11-08 11:15:24.816339
+4,1,23.08,14.81,1,Weak,0.04,2026-11-10 11:51:43.488355
