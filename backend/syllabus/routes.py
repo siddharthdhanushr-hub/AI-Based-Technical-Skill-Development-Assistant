@@ -384,9 +384,28 @@ def update_topic(
     topic_record.difficulty_weight = topic.difficulty_weight
     topic_record.estimated_hours = topic.estimated_hours
     topic_record.preferred_time = topic.preferred_time
+    topic_record.is_completed = bool(topic.is_completed)
     db.commit()
     db.refresh(topic_record)
     return topic_record
+
+@router.put("/topics/{topic_id}/toggle-complete", response_model=schemas.TopicOut)
+def toggle_topic_complete(
+    topic_id: int,
+    current_user: Student = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    topic = db.query(models.Topic).join(models.Subject).filter(
+        models.Topic.topic_id == topic_id,
+        models.Subject.student_id == current_user.student_id
+    ).first()
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+        
+    topic.is_completed = not bool(topic.is_completed)
+    db.commit()
+    db.refresh(topic)
+    return topic
 
 
 # --- Exam Routes ---

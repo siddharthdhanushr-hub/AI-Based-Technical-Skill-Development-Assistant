@@ -18,12 +18,8 @@ function QuizSession() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subRes, timeRes] = await Promise.all([
-          api.get('/syllabus/subjects'),
-          api.get('/planning/timetable')
-        ]);
+        const subRes = await api.get('/syllabus/subjects');
         setSubjects(subRes.data);
-        setTimetable(timeRes.data);
         
         // If topicIds list is passed in state, auto-generate the multi-topic adaptive quiz immediately
         if (location.state && location.state.topicIds) {
@@ -40,7 +36,7 @@ function QuizSession() {
             setQuizStatus('READY');
             setAnswers({});
           } catch (err) {
-            alert(err.response?.data?.detail || 'Failed to auto-generate adaptive quiz. Is Ollama running?');
+            alert(err.response?.data?.detail || 'Failed to auto-generate adaptive quiz.');
             setQuizStatus('IDLE');
           }
         } else if (location.state && location.state.topicId) {
@@ -58,12 +54,12 @@ function QuizSession() {
             setQuizStatus('READY');
             setAnswers({});
           } catch (err) {
-            alert(err.response?.data?.detail || 'Failed to auto-generate quiz. Is Ollama running?');
+            alert(err.response?.data?.detail || 'Failed to auto-generate quiz.');
             setQuizStatus('IDLE');
           }
         }
       } catch (err) {
-        navigate('/login');
+        console.error("QuizSession subjects fetch error:", err);
       }
     };
     fetchData();
@@ -143,18 +139,19 @@ function QuizSession() {
     }
   };
 
-  const completedTopicIds = Array.from(new Set(
-    timetable.filter(s => s.is_completed).map(s => s.topic_id)
-  ));
+  const completedTopicIds = Array.from(new Set([
+    ...timetable.filter(s => s.is_completed).map(s => s.topic_id),
+    ...subjects.flatMap(s => (s.topics || []).filter(t => t.is_completed).map(t => t.topic_id))
+  ]));
 
   return (
     <div style={{maxWidth: '800px', margin: '0 auto'}}>
-      <h1 style={{marginBottom: '32px'}}>🧠 AI Quiz Engine</h1>
+      <h1 style={{marginBottom: '32px'}}>🎯 Technical Skill Assessment Engine</h1>
 
       {quizStatus === 'IDLE' && (
         <div className="glass-panel">
-          <h2>Select Topics</h2>
-          <p>Choose one or more topics to generate a custom adaptive quiz. Topics you have completed study sessions for are highlighted.</p>
+          <h2>Select Competencies</h2>
+          <p>Choose one or more technical competencies to generate an adaptive 10-question skill assessment. Mastered competencies are tagged.</p>
           
           <div style={{display: 'flex', flexDirection: 'column', gap: '16px', margin: '20px 0'}}>
             {subjects.map(subject => (
@@ -195,7 +192,7 @@ function QuizSession() {
                         <span style={{flex: 1}}>{t.topic_name}</span>
                         {isCompleted && (
                           <span style={{fontSize: '0.7rem', padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: '4px', fontWeight: 600}}>
-                            Completed
+                            Mastered
                           </span>
                         )}
                       </label>
@@ -210,9 +207,9 @@ function QuizSession() {
             className="btn" 
             onClick={handleGenerateQuiz} 
             disabled={selectedTopics.length === 0} 
-            style={{width: '100%', padding: '12px'}}
+            style={{width: '100%', padding: '12px', fontSize: '1rem', fontWeight: 600}}
           >
-            ✨ Generate Adaptive Quiz ({selectedTopics.length} Topics selected)
+            ✨ Generate 10-Question Skill Assessment ({selectedTopics.length} Competencies selected)
           </button>
         </div>
       )}
@@ -220,14 +217,14 @@ function QuizSession() {
       {quizStatus === 'GENERATING' && (
         <div className="glass-panel flex-center" style={{flexDirection: 'column', height: '200px'}}>
           <div style={{fontSize: '3rem', marginBottom: '16px'}}>🤖</div>
-          <h3>Ollama is generating your quiz...</h3>
-          <p>This may take a minute depending on your local hardware.</p>
+          <h3>AI Engine is generating your 10 skill questions...</h3>
+          <p>Synthesizing technical scenarios, code nuances, and practical problems...</p>
         </div>
       )}
 
       {quizStatus === 'READY' && (
         <div className="glass-panel">
-          <h2 style={{marginBottom: '24px'}}>Quiz Time!</h2>
+          <h2 style={{marginBottom: '24px'}}>Quiz Time! ({questions.length} Questions)</h2>
           
           {questions.map((q, idx) => {
             const isFIB = q.question_type === 'FIB';

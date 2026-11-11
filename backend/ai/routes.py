@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from backend.core import database
 from backend.user import auth
@@ -9,7 +9,7 @@ from backend.syllabus.models import Subject, Topic
 from . import schemas, models
 from . import syllabus_generator, document_parser, question_generator
 from . import summary_generator, flashcard_generator, hint_generator
-from . import explanation_generator, mocktest_generator, study_strategy, wellness
+from . import explanation_generator, mocktest_generator, study_strategy, wellness, project_generator
 
 router = APIRouter()
 
@@ -28,7 +28,7 @@ def generate_quiz(
     db.commit()
         
     try:
-        raw_questions = question_generator.generate_quiz_for_topic(topic.topic_name, num_questions=9, context=topic.content_text)
+        raw_questions = question_generator.generate_quiz_for_topic(topic.topic_name, num_questions=10, context=topic.content_text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -57,46 +57,88 @@ def generate_quiz(
     return {"message": "Quiz generated successfully", "questions": saved_questions}
 
 @router.post("/syllabus/extract/{subject_id}", response_model=schemas.ExtractionResponse)
-def extract_syllabus(
+async def extract_syllabus(
     subject_id: int,
+    file: Optional[UploadFile] = File(None),
     current_user: Student = Depends(auth.get_current_user),
     db: Session = Depends(database.get_db)
 ):
-    # Verify subject belongs to user
+    import os
     subject_record = db.query(Subject).filter(
         Subject.subject_id == subject_id,
         Subject.student_id == current_user.student_id
     ).first()
     
     if not subject_record:
-        raise HTTPException(status_code=404, detail="Subject not found")
+        raise HTTPException(status_code=404, detail="Skill track not found")
 
-    if not subject_record.file_path:
-        raise HTTPException(status_code=400, detail="No syllabus file uploaded for this subject.")
+    raw_text = ""
 
-    # 1. Parse Document
-    try:
-        import os
-        with open(subject_record.file_path, "rb") as f:
-            file_bytes = f.read()
-        filename = os.path.basename(subject_record.file_path)
-        raw_text = document_parser.parse_document(file_bytes, filename)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to parse document: {str(e)}")
+    # If file uploaded in this request, process and persist it
+    if file and file.filename:
+        try:
+            file_bytes = await file.read()
+            upload_dir = "uploads"
+            os.makedirs(upload_dir, exist_ok=True)
+            saved_path = f"{upload_dir}/{subject_id}_{file.filename}"
+            with open(saved_path, "wb") as f_out:
+                f_out.write(file_bytes)
+            subject_record.file_path = saved_path
+            db.commit()
 
-    if not raw_text.strip():
-        raise HTTPException(status_code=400, detail="Uploaded document contains no readable text.")
+            raw_text = document_parser.parse_document(file_bytes, file.filename)
+        except Exception as e:
+            print(f"Uploaded file parsing error: {e}")
 
-    # 2. Extract Topics using AI
-    try:
-        raw_topics = syllabus_generator.extract_syllabus_topics(raw_text)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI extraction failed: {str(e)}")
+    # Fallback to previously saved file if any
+    if not raw_text.strip() and subject_record.file_path and os.path.exists(subject_record.file_path):
+        try:
+            with open(subject_record.file_path, "rb") as f:
+                file_bytes = f.read()
+            filename = os.path.basename(subject_record.file_path)
+            raw_text = document_parser.parse_document(file_bytes, filename)
+        except Exception as e:
+            print(f"Document parsing note: {e}")
+
+    if not raw_text.strip() and subject_record.resources:
+        for res in subject_record.resources:
+            if res.file_path and os.path.exists(res.file_path):
+                try:
+                    with open(res.file_path, "rb") as f:
+                        f_bytes = f.read()
+                    res_text = document_parser.parse_document(f_bytes, res.filename)
+                    if res_text:
+                        raw_text += "\n" + res_text
+                except Exception:
+                    pass
+
+    # Extract Skills using AI + OCR + Industry curricula
+    raw_topics = syllabus_generator.extract_syllabus_topics(raw_text, subject_name=subject_record.subject_name)
 
     return {
-        "message": f"Successfully extracted {len(raw_topics)} topics",
+        "message": f"Successfully extracted {len(raw_topics)} skills",
         "topics_added": 0,
         "topics": raw_topics
+    }
+
+@router.post("/project-ideas/{subject_id}", response_model=schemas.ProjectIdeasResponse)
+def get_project_ideas_route(
+    subject_id: int,
+    current_user: Student = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    subject_record = db.query(Subject).filter(
+        Subject.subject_id == subject_id,
+        Subject.student_id == current_user.student_id
+    ).first()
+    if not subject_record:
+        raise HTTPException(status_code=404, detail="Skill track not found")
+        
+    skill_names = [t.topic_name for t in subject_record.topics]
+    projects = project_generator.generate_project_ideas(subject_record.subject_name, skill_names)
+    return {
+        "subject_name": subject_record.subject_name,
+        "projects": projects
     }
 
 @router.post("/quiz/generate", response_model=schemas.QuizGenerationResponse)
@@ -108,20 +150,20 @@ def generate_adaptive_quiz(
     if not payload.topic_ids:
         raise HTTPException(status_code=400, detail="No topic IDs provided")
         
+    total_needed = 10
+    valid_topics = [db.query(Topic).filter(Topic.topic_id == t_id).first() for t_id in payload.topic_ids]
+    valid_topics = [t for t in valid_topics if t is not None]
+    
+    if not valid_topics:
+        raise HTTPException(status_code=404, detail="No valid topics found")
+        
+    num_topics = len(valid_topics)
+    base_per_topic = max(1, total_needed // num_topics)
+    remainder = total_needed % num_topics
+
     topics_list = []
-    for t_id in payload.topic_ids:
-        topic = db.query(Topic).filter(Topic.topic_id == t_id).first()
-        if not topic:
-            continue
-            
-        weight = topic.difficulty_weight or 2.0
-        if weight >= 4.0:
-            num_q = 4
-        elif weight >= 2.0:
-            num_q = 3
-        else:
-            num_q = 2
-            
+    for idx, topic in enumerate(valid_topics):
+        num_q = base_per_topic + (1 if idx < remainder else 0)
         topics_list.append({
             "topic_id": topic.topic_id,
             "topic_name": topic.topic_name,
@@ -130,7 +172,7 @@ def generate_adaptive_quiz(
         })
         
         # Clear old questions for this topic to avoid duplicates
-        db.query(models.Question).filter(models.Question.topic_id == t_id).delete()
+        db.query(models.Question).filter(models.Question.topic_id == topic.topic_id).delete()
         db.commit()
         
     try:

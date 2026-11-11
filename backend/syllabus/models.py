@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from backend.core.database import Base
@@ -26,6 +26,7 @@ class Topic(Base):
     estimated_hours = Column(Float, default=2.0)
     preferred_time = Column(String, nullable=True)
     content_text = Column(String, nullable=True)
+    is_completed = Column(Boolean, default=False)
 
     subject = relationship("Subject", back_populates="topics")
 

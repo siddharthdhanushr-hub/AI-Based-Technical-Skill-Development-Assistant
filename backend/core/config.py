@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str = "http://localhost:8000/v1"
     LLM_API_KEY: str = "EMPTY"
     LLM_MODEL: str = "meta-llama/Llama-3.2-1B-Instruct"
-    LLM_TIMEOUT: float = 60.0
-    LLM_MAX_RETRIES: int = 3
+    LLM_TIMEOUT: float = 2.0
+    LLM_MAX_RETRIES: int = 0
 
     class Config:
         env_file = str(_env_path)

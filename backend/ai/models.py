@@ -2,6 +2,10 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, Date
 from sqlalchemy.orm import relationship
 import datetime
 from backend.core.database import Base
+try:
+    import backend.syllabus.models
+except ImportError:
+    import syllabus.models
 
 class Question(Base):
     __tablename__ = "questions"

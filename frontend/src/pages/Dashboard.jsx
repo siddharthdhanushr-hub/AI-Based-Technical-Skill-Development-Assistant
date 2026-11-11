@@ -4,617 +4,328 @@ import api from '../api';
 
 function Dashboard() {
   const [profile, setProfile] = useState(null);
-  const [preferences, setPreferences] = useState(null);
-  const [timetable, setTimetable] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [editingSessionId, setEditingSessionId] = useState(null);
-  const [editSessionData, setEditSessionData] = useState({ planned_date: '', planned_minutes: 0, start_time: '', end_time: '' });
-  const [viewMode, setViewMode] = useState('list');
+  const [analytics, setAnalytics] = useState(null);
+  const [progress, setProgress] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profRes, timeRes, subRes, prefRes] = await Promise.all([
+        const [profRes, subRes] = await Promise.all([
           api.get('/user/profile'),
-          api.get('/planning/timetable'),
-          api.get('/syllabus/subjects'),
-          api.get('/user/preferences')
+          api.get('/syllabus/subjects')
         ]);
         setProfile(profRes.data);
-        setTimetable(timeRes.data);
         setSubjects(subRes.data);
-        setPreferences(prefRes.data);
+
+        // Fetch analytics & progress gracefully
+        try {
+          const [anaRes, progRes] = await Promise.all([
+            api.get('/ml/analytics'),
+            api.get('/user/progress')
+          ]);
+          setAnalytics(anaRes.data);
+          setProgress(progRes.data);
+        } catch (e) {
+          console.debug("Analytics loading background:", e);
+        }
       } catch (err) {
-        navigate('/login');
+        console.error("Dashboard fetch error:", err);
       }
     };
     fetchData();
-  }, [navigate]);
+  }, []);
 
-  const handleCompleteSession = async (planId) => {
-    try {
-      await api.put(`/planning/sessions/${planId}/complete`);
-      // Refresh timetable
-      const timeRes = await api.get('/planning/timetable');
-      setTimetable(timeRes.data);
-    } catch (err) {
-      alert('Failed to mark complete');
-    }
-  };
+  if (!profile) return <div className="flex-center" style={{ height: '50vh' }}>Loading Dashboard...</div>;
 
-  if (!profile) return <div className="flex-center" style={{height: '50vh'}}>Loading...</div>;
-
-  // Helper to map topic_id to topic name across all subjects
-  const getTopicName = (topicId) => {
-    for (let s of subjects) {
-      const t = s.topics.find(t => t.topic_id === topicId);
-      if (t) return `${s.subject_name} - ${t.topic_name}`;
-    }
-    return `Topic #${topicId}`;
-  };
-
-  const handleClearAll = async () => {
-    if (!window.confirm("Are you sure you want to clear your entire timetable?")) return;
-    try {
-      await api.delete('/planning/sessions');
-      const timeRes = await api.get('/planning/timetable');
-      setTimetable(timeRes.data);
-    } catch (err) {
-      alert('Failed to clear timetable');
-    }
-  };
-
-  const handleDeleteSession = async (planId) => {
-    try {
-      await api.delete(`/planning/sessions/${planId}`);
-      const timeRes = await api.get('/planning/timetable');
-      setTimetable(timeRes.data);
-    } catch (err) {
-      alert('Failed to delete session');
-    }
-  };
-
-
-  const handleEditSession = (plan) => {
-    setEditingSessionId(plan.plan_id);
-    setEditSessionData({
-      planned_date: plan.planned_date,
-      planned_minutes: plan.planned_minutes,
-      start_time: plan.start_time || '',
-      end_time: plan.end_time || ''
-    });
-  };
-
-  const handleSaveSession = async (planId) => {
-    try {
-      await api.put(`/planning/sessions/${planId}`, editSessionData);
-      setEditingSessionId(null);
-      const timeRes = await api.get('/planning/timetable');
-      setTimetable(timeRes.data);
-    } catch (err) {
-      alert('Failed to update study session');
-    }
-  };
-
-  const pendingSessions = timetable.filter(t => !t.is_completed);
-  const completedSessions = timetable.filter(t => t.is_completed);
-
-  const dismissedCount = parseInt(localStorage.getItem('quiz_alert_dismissed_at') || '0');
-  const showQuizAlert = completedSessions.length > 0 && 
-                        completedSessions.length % 3 === 0 && 
-                        completedSessions.length !== dismissedCount;
-  const lastThreeCompletedSessions = completedSessions.slice(-3);
-  const lastThreeTopicIds = Array.from(new Set(lastThreeCompletedSessions.map(s => s.topic_id)));
+  const allTopics = subjects.flatMap(s => s.topics || []);
+  const completedTopics = allTopics.filter(t => t.is_completed).length;
+  const completionPct = allTopics.length > 0 ? Math.round((completedTopics / allTopics.length) * 100) : 0;
 
   return (
     <div>
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px'}}>
+      {/* Header Banner */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ marginBottom: '8px' }}>Welcome, {profile.name}!</h1>
-          <p style={{ fontSize: '1.1rem', margin: 0 }}>Here is your personalized adaptive study plan.</p>
+          <h1 style={{ margin: '0 0 6px 0' }}>Welcome, {profile.name}! 👋</h1>
+          <p style={{ fontSize: '1.05rem', margin: 0, color: 'var(--text-secondary)' }}>
+            Your personalized AI technical skill development and competency command center.
+          </p>
         </div>
-        <div style={{display: 'flex', gap: '12px'}}>
-          <button className="btn" onClick={() => navigate('/syllabus')} style={{background: 'var(--success-color)'}}>
-            📅 Create Timetable
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button className="btn" onClick={() => navigate('/century-skills')} style={{ background: '#4f46e5' }}>
+            🎯 21st Century Assessment
           </button>
-          <button className="btn btn-secondary" onClick={() => navigate('/performance')}>
-            📈 Performance Hub
+          <button className="btn" onClick={() => navigate('/tracker')} style={{ background: '#0284c7' }}>
+            📊 Skill Tracker
           </button>
-          <button className="btn btn-secondary" onClick={() => navigate('/quiz')}>
-            🧠 Take a Quiz
+          <button className="btn btn-secondary" onClick={() => navigate('/mlops-insights')}>
+            📈 MLOps Insights
           </button>
         </div>
       </div>
 
-      {showQuizAlert && (
-        <div style={{
-          background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-          color: '#78350f',
-          padding: '16px 20px',
-          borderRadius: '12px',
-          border: '1px solid #f59e0b',
-          marginBottom: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.1)'
-        }}>
-          <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '1.05rem', color: '#78350f' }}>🔔 Time for a Quiz Check-in!</h3>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>
-              You've completed <strong>{completedSessions.length} study sessions</strong>! Take a quiz now so we can analyze your performance and optimize your timetable.
+      {/* Featured MLOps Gate Feature Banner */}
+      <div
+        className="glass-panel"
+        style={{
+          marginBottom: '28px',
+          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          color: '#ffffff',
+          border: 'none',
+          padding: '24px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ maxWidth: '700px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: '20px', fontSize: '0.8rem', marginBottom: '10px' }}>
+              <span>🚀 MLOps Production Gate</span>
+              <span>•</span>
+              <span>Random Forest Champion Model (N=8,528 Students)</span>
+            </div>
+            <h2 style={{ color: '#fff', fontSize: '1.45rem', margin: '0 0 8px 0' }}>
+              Assess Your 21st-Century Tech Skills & Unlock Cross-Verification
+            </h2>
+            <p style={{ color: '#c7d2fe', fontSize: '0.92rem', margin: 0, lineHeight: 1.5 }}>
+              Input your self-reported confidence across 10 modern competencies (AI/ML, Data Science, Full-Stack, Cloud Systems, Security, etc.). Our trained MLOps champion evaluates your readiness threshold ($P \ge 50\%$). If qualified, take the cross-verification quiz directly; if skill gaps are detected, sync directly to the Skill Tracker for targeted preparation!
             </p>
           </div>
-          <button 
-            className="btn" 
-            onClick={() => {
-              localStorage.setItem('quiz_alert_dismissed_at', completedSessions.length.toString());
-              navigate('/quiz', { state: { topicIds: lastThreeTopicIds } });
-            }} 
-            style={{ background: '#d97706', color: '#fff', border: 'none', padding: '8px 16px', fontWeight: 600 }}
-          >
-            Start Quiz
-          </button>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => navigate('/century-skills')}
+              className="btn"
+              style={{ background: '#10b981', color: '#fff', padding: '12px 24px', fontWeight: 700 }}
+            >
+              🎯 Start Assessment Now
+            </button>
+            <button
+              onClick={() => navigate('/mlops-insights')}
+              className="btn"
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', padding: '12px 20px', boxShadow: 'none' }}
+            >
+              📊 Phase 1 & 2 Insights
+            </button>
+          </div>
         </div>
-      )}
+      </div>
 
+      {/* KPI Stats Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '16px',
+        marginBottom: '28px'
+      }}>
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #3b82f6' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>SKILL TRACKS</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b', marginTop: '4px' }}>{subjects.length}</div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Active domains</span>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #10b981' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>COMPETENCY MASTERY</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginTop: '4px' }}>
+            {completedTopics} / {allTopics.length}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{completionPct}% competencies verified</span>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #8b5cf6' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>CAREER READINESS SCORE</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#8b5cf6', marginTop: '4px' }}>
+            {analytics?.exam_readiness_prob ? `${Math.round(analytics.exam_readiness_prob * 100)}%` : 'Active'}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Status: {analytics?.topic_mastery || 'In Progress'}</span>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #f59e0b' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ASSESSMENTS COMPLETED</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#d97706', marginTop: '4px' }}>
+            {progress.length}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Evaluated skill quizzes</span>
+        </div>
+      </div>
+
+      {/* Main Content: 2 Columns */}
       <div className="grid grid-cols-2">
-        <div className="glass-panel" style={{alignSelf: 'start'}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px'}}>
-            <h2>Your Study Plan</h2>
-            <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-              <div style={{display: 'flex', background: '#f3f4f6', padding: '2px', borderRadius: '8px', border: '1px solid var(--border-color)'}}>
-                <button 
-                  onClick={() => setViewMode('list')} 
-                  style={{
-                    padding: '6px 12px', 
-                    background: viewMode === 'list' ? '#fff' : 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  List View
+        {/* Left Column: Your Subjects & Topics Breakdown */}
+        <div className="glass-panel">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ margin: 0 }}>🛠️ Skill Tracks & Competencies</h2>
+            <button className="btn" onClick={() => navigate('/skills')} style={{ fontSize: '0.8rem', padding: '5px 12px', background: '#e0e7ff', color: '#4338ca' }}>
+              Manage Skills
+            </button>
+          </div>
+
+          {subjects.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '12px' }}>
+              <p>No skill tracks found. Start by setting up your skills in Skill Manager or running the 21st-Century Assessment!</p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '10px' }}>
+                <button className="btn" onClick={() => navigate('/century-skills')}>
+                  🎯 Run 21st Century Assessment
                 </button>
-                <button 
-                  onClick={() => setViewMode('grid')} 
-                  style={{
-                    padding: '6px 12px', 
-                    background: viewMode === 'grid' ? '#fff' : 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Weekly Grid
+                <button className="btn btn-secondary" onClick={() => navigate('/skills')}>
+                  Setup Skills Manually
                 </button>
               </div>
-              {timetable.length > 0 && (
-                <button onClick={handleClearAll} style={{background: 'transparent', color: 'var(--danger-color)', border: '1px solid var(--danger-color)', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem'}}>
-                  Clear All
-                </button>
-              )}
-            </div>
-          </div>
-          
-          {timetable.length === 0 ? (
-            <div style={{background: '#f9fafb', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', textAlign: 'center'}}>
-              <p>You haven't generated a timetable yet!</p>
-              <button className="btn" onClick={() => navigate('/syllabus')} style={{marginTop: '12px'}}>
-                Go to Syllabus Manager
-              </button>
             </div>
           ) : (
-            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
-              {pendingSessions.length === 0 && completedSessions.length > 0 && (
-                <div className="badge badge-success" style={{padding: '12px', fontSize: '1rem', justifyContent: 'center'}}>
-                  🎉 All caught up! Syllabus completed!
-                </div>
-              )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {subjects.map(sub => {
+                const sTopics = sub.topics || [];
+                const sDone = sTopics.filter(t => t.is_completed).length;
+                const sPct = sTopics.length > 0 ? Math.round((sDone / sTopics.length) * 100) : 0;
 
-              {viewMode === 'grid' && editingSessionId && (
-                <div style={{background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '16px'}}>
-                  <h4 style={{margin: '0 0 12px 0'}}>Edit Study Session</h4>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '12px'}}>
-                    <div>
-                      <label style={{fontSize: '0.8rem', display: 'block', marginBottom: '4px'}}>Planned Date</label>
-                      <input
-                        type="date"
-                        className="input-field"
-                        value={editSessionData.planned_date}
-                        onChange={(e) => setEditSessionData({ ...editSessionData, planned_date: e.target.value })}
-                      />
+                return (
+                  <div
+                    key={sub.subject_id}
+                    style={{
+                      background: '#fff',
+                      padding: '16px',
+                      borderRadius: '12px',
+                      border: '1px solid var(--border-color)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b' }}>{sub.subject_name}</h3>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: sPct === 100 ? '#10b981' : '#64748b' }}>
+                        {sDone}/{sTopics.length} done ({sPct}%)
+                      </span>
                     </div>
-                    <div>
-                      <label style={{fontSize: '0.8rem', display: 'block', marginBottom: '4px'}}>Duration (mins)</label>
-                      <input
-                        type="number"
-                        className="input-field"
-                        value={editSessionData.planned_minutes}
-                        onChange={(e) => setEditSessionData({ ...editSessionData, planned_minutes: parseInt(e.target.value) || 0 })}
-                      />
+
+                    <div style={{ background: '#e2e8f0', borderRadius: '999px', height: '8px', overflow: 'hidden', marginBottom: '12px' }}>
+                      <div style={{
+                        background: sPct === 100 ? '#10b981' : 'var(--accent-color)',
+                        height: '100%',
+                        width: `${sPct}%`,
+                        borderRadius: '999px',
+                        transition: 'width 0.4s'
+                      }} />
                     </div>
-                    <div>
-                      <label style={{fontSize: '0.8rem', display: 'block', marginBottom: '4px'}}>Timeslots</label>
-                      <div style={{display: 'flex', gap: '4px'}}>
-                        <input
-                          type="text"
-                          placeholder="Start"
-                          className="input-field"
-                          value={editSessionData.start_time}
-                          onChange={(e) => setEditSessionData({ ...editSessionData, start_time: e.target.value })}
-                        />
-                        <input
-                          type="text"
-                          placeholder="End"
-                          className="input-field"
-                          value={editSessionData.end_time}
-                          onChange={(e) => setEditSessionData({ ...editSessionData, end_time: e.target.value })}
-                        />
-                      </div>
+
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        className="btn"
+                        onClick={() => navigate('/tracker')}
+                        style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#0284c7' }}
+                      >
+                        Track Competencies
+                      </button>
+                      {sTopics.length > 0 && (
+                        <button
+                          className="btn"
+                          onClick={() => navigate('/quiz', { state: { topicIds: sTopics.map(t => t.topic_id) } })}
+                          style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#6366f1' }}
+                        >
+                          Assess Track (10 Qs)
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
-                    <button onClick={() => handleSaveSession(editingSessionId)} className="btn" style={{padding: '6px 12px', fontSize: '0.85rem', background: 'var(--success-color)'}}>
-                      Save
-                    </button>
-                    <button onClick={() => setEditingSessionId(null)} className="btn btn-secondary" style={{padding: '6px 12px', fontSize: '0.85rem'}}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {viewMode === 'list' ? (
-                <div style={{overflowX: 'auto'}}>
-                  <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
-                    <thead>
-                      <tr style={{borderBottom: '2px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.9rem'}}>
-                        <th style={{padding: '10px 8px'}}>Date</th>
-                        <th style={{padding: '10px 8px'}}>Topic</th>
-                        <th style={{padding: '10px 8px'}}>Duration / Time</th>
-                        <th style={{padding: '10px 8px', textAlign: 'right'}}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pendingSessions.map(plan => {
-                        const isEditing = editingSessionId === plan.plan_id;
-                        return (
-                          <tr key={plan.plan_id} style={{borderBottom: '1px solid var(--border-color)'}}>
-                            <td style={{padding: '12px 8px', verticalAlign: 'middle'}}>
-                              {isEditing ? (
-                                <input
-                                  type="date"
-                                  value={editSessionData.planned_date}
-                                  onChange={(e) => setEditSessionData({ ...editSessionData, planned_date: e.target.value })}
-                                  style={{padding: '4px', fontSize: '0.85rem', width: '120px'}}
-                                />
-                              ) : (
-                                <span style={{fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-color)'}}>{plan.planned_date}</span>
-                              )}
-                            </td>
-                            <td style={{padding: '12px 8px', verticalAlign: 'middle'}}>
-                              <span style={{fontSize: '0.95rem', fontWeight: 500}}>
-                                {getTopicName(plan.topic_id)}
-                                {plan.is_remedial && (
-                                  <span style={{
-                                    marginLeft: '8px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 700,
-                                    background: '#fee2e2',
-                                    color: '#ef4444',
-                                    padding: '2px 8px',
-                                    borderRadius: '12px',
-                                    border: '1px solid #fca5a5',
-                                    display: 'inline-block'
-                                  }}>
-                                    🔄 Remedial Review
-                                  </span>
-                                )}
-                              </span>
-                            </td>
-                            <td style={{padding: '12px 8px', verticalAlign: 'middle'}}>
-                              {isEditing ? (
-                                <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-                                  <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
-                                    <input
-                                      type="number"
-                                      value={editSessionData.planned_minutes}
-                                      onChange={(e) => setEditSessionData({ ...editSessionData, planned_minutes: parseInt(e.target.value) || 0 })}
-                                      style={{padding: '4px', fontSize: '0.85rem', width: '60px'}}
-                                    />
-                                    <span style={{fontSize: '0.8rem'}}>mins</span>
-                                  </div>
-                                  <div style={{display: 'flex', gap: '4px'}}>
-                                    <input
-                                      type="text"
-                                      placeholder="Start"
-                                      value={editSessionData.start_time}
-                                      onChange={(e) => setEditSessionData({ ...editSessionData, start_time: e.target.value })}
-                                      style={{padding: '4px', fontSize: '0.8rem', width: '60px'}}
-                                    />
-                                    <input
-                                      type="text"
-                                      placeholder="End"
-                                      value={editSessionData.end_time}
-                                      onChange={(e) => setEditSessionData({ ...editSessionData, end_time: e.target.value })}
-                                      style={{padding: '4px', fontSize: '0.8rem', width: '60px'}}
-                                    />
-                                  </div>
-                                </div>
-                              ) : (
-                                <span style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>
-                                  {plan.start_time && plan.end_time ? (
-                                    <>🕒 {plan.start_time} - {plan.end_time} ({plan.planned_minutes}m)</>
-                                  ) : (
-                                    <>⏱️ {plan.planned_minutes} mins</>
-                                  )}
-                                </span>
-                              )}
-                            </td>
-                            <td style={{padding: '12px 8px', verticalAlign: 'middle', textAlign: 'right'}}>
-                              {isEditing ? (
-                                <div style={{display: 'flex', gap: '4px', justifyContent: 'flex-end'}}>
-                                  <button onClick={() => handleSaveSession(plan.plan_id)} className="btn" style={{padding: '6px 10px', fontSize: '0.8rem', background: 'var(--success-color)', boxShadow: 'none'}}>
-                                    Save
-                                  </button>
-                                  <button onClick={() => setEditingSessionId(null)} className="btn btn-secondary" style={{padding: '6px 10px', fontSize: '0.8rem'}}>
-                                    Cancel
-                                  </button>
-                                </div>
-                              ) : (
-                                <div style={{display: 'flex', gap: '4px', justifyContent: 'flex-end'}}>
-                                  <button onClick={() => handleCompleteSession(plan.plan_id)} className="btn" style={{padding: '6px 10px', fontSize: '0.8rem', background: 'var(--success-color)', boxShadow: 'none'}}>
-                                    Done
-                                  </button>
-                                  <button onClick={() => handleEditSession(plan)} className="btn btn-secondary" style={{padding: '6px 8px', fontSize: '0.8rem', boxShadow: 'none'}}>
-                                    ✏️
-                                  </button>
-                                  <button onClick={() => handleDeleteSession(plan.plan_id)} className="btn" style={{padding: '6px 8px', fontSize: '0.8rem', background: 'var(--danger-color)', boxShadow: 'none'}}>
-                                    🗑️
-                                  </button>
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <WeeklyGridView 
-                  timetable={timetable} 
-                  getTopicName={getTopicName} 
-                  handleCompleteSession={handleCompleteSession} 
-                  handleEditSession={handleEditSession} 
-                  preferences={preferences}
-                />
-              )}
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div className="glass-panel" style={{alignSelf: 'start'}}>
-          <h2>Progress Tracking</h2>
-          
-          <div style={{background: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '16px'}}>
-            <h3 style={{fontSize: '1rem', margin: 0, color: 'var(--text-secondary)'}}>Overall Completion</h3>
-            <div style={{fontSize: '2.5rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '8px'}}>
-              {timetable.length > 0 ? Math.round((completedSessions.length / timetable.length) * 100) : 0}%
-            </div>
-            <p style={{margin: 0, fontSize: '0.9rem'}}>
-              {completedSessions.length} of {timetable.length} sessions completed
+        {/* Right Column: AI Suite & Performance Insight */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Quick AI Learning Toolkit */}
+          <div className="glass-panel">
+            <h2 style={{ marginBottom: '14px' }}>⚡ AI Skill Development Suite</h2>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+              Instant AI tools available in Skill Tracker for every technical domain:
             </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div
+                onClick={() => navigate('/tracker')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🚀</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Portfolio Projects</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Real-world builds with tech stack & resume impact</p>
+              </div>
+
+              <div
+                onClick={() => navigate('/century-skills')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🎯</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>21st-Century Gating</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>10-skill self-evaluation with Random Forest champion</p>
+              </div>
+
+              <div
+                onClick={() => navigate('/tracker')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🗺️</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Mastery Roadmaps</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Structured progression & time allocation</p>
+              </div>
+
+              <div
+                onClick={() => navigate('/tracker')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>📚</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Skill Briefs & Cards</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Interactive flashcards & core concepts</p>
+              </div>
+            </div>
           </div>
 
-
-
-          <h3>Recent History</h3>
-          <ul style={{listStyle: 'none', padding: 0}}>
-            {completedSessions.slice(-5).map(plan => (
-              <li key={plan.plan_id} style={{padding: '12px 0', borderBottom: '1px solid var(--border-color)'}}>
-                <span style={{display: 'inline-block', width: '20px', color: 'var(--success-color)'}}>✓</span>
-                <span style={{fontWeight: 500}}>{getTopicName(plan.topic_id)}</span>
-                <span style={{float: 'right', color: 'var(--text-secondary)', fontSize: '0.85rem'}}>{plan.planned_minutes} min</span>
-              </li>
-            ))}
-            {completedSessions.length === 0 && (
-              <li style={{color: 'var(--text-secondary)'}}>No sessions completed yet.</li>
+          {/* Weak Topics & Readiness Card */}
+          <div className="glass-panel">
+            <h2 style={{ marginBottom: '12px' }}>🎯 Skill Readiness Status</h2>
+            {analytics?.weak_topics && analytics.weak_topics.length > 0 ? (
+              <div style={{ background: '#fef2f2', padding: '14px', borderRadius: '10px', border: '1px solid #fecaca' }}>
+                <strong style={{ color: '#991b1b', fontSize: '0.9rem' }}>⚠️ High Priority Competencies to Practice:</strong>
+                <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', color: '#7f1d1d', fontSize: '0.85rem' }}>
+                  {analytics.weak_topics.map((wt, i) => (
+                    <li key={i}>{wt}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div style={{ background: '#f0fdf4', padding: '14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                <strong style={{ color: '#166534', fontSize: '0.9rem' }}>✨ On Track:</strong>
+                <p style={{ margin: '4px 0 0 0', color: '#14532d', fontSize: '0.85rem' }}>
+                  All tested skills demonstrate solid competency. Keep building projects and taking quizzes to advance your profile!
+                </p>
+              </div>
             )}
-          </ul>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-// Weekly Grid Schedule View Component
-function WeeklyGridView({ timetable, getTopicName, handleCompleteSession, handleEditSession, preferences }) {
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
-  // Dynamic wake/sleep hours based on preferences (starts grid from study start hour)
-  const wakeHour = parseInt(preferences?.study_start_time?.split(':')[0]) || parseInt(preferences?.wake_time?.split(':')[0]) || 7;
-  const sleepHour = parseInt(preferences?.sleep_time?.split(':')[0]) || 22;
-  
-  const hourlySlots = [];
-  for (let h = wakeHour; h <= sleepHour; h++) {
-    hourlySlots.push(`${h.toString().padStart(2, '0')}:00`);
-  }
-
-  const getMondayOfDate = (d) => {
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    const monday = new Date(date.setDate(diff));
-    monday.setHours(0, 0, 0, 0);
-    return monday;
-  };
-
-  const getUniqueWeeks = () => {
-    const weeks = new Set();
-    const currentMondayStr = getMondayOfDate(new Date()).toISOString().split('T')[0];
-    weeks.add(currentMondayStr);
-    
-    timetable.forEach(plan => {
-      if (!plan.planned_date) return;
-      const monday = getMondayOfDate(new Date(plan.planned_date + 'T00:00:00'));
-      weeks.add(monday.toISOString().split('T')[0]);
-    });
-    return Array.from(weeks).sort();
-  };
-
-  const weeksList = getUniqueWeeks();
-  const [selectedWeek, setSelectedWeek] = useState(
-    weeksList.includes(getMondayOfDate(new Date()).toISOString().split('T')[0]) 
-      ? getMondayOfDate(new Date()).toISOString().split('T')[0] 
-      : weeksList[0] || getMondayOfDate(new Date()).toISOString().split('T')[0]
-  );
-
-  const handlePrevWeek = () => {
-    const currentIndex = weeksList.indexOf(selectedWeek);
-    if (currentIndex > 0) {
-      setSelectedWeek(weeksList[currentIndex - 1]);
-    }
-  };
-
-  const handleNextWeek = () => {
-    const currentIndex = weeksList.indexOf(selectedWeek);
-    if (currentIndex < weeksList.length - 1) {
-      setSelectedWeek(weeksList[currentIndex + 1]);
-    }
-  };
-
-  const getDayName = (dateStr) => {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { weekday: 'long' });
-  };
-
-  const getSessionHour = (startTimeStr) => {
-    if (!startTimeStr) return null;
-    const hour = startTimeStr.split(':')[0];
-    return `${hour.padStart(2, '0')}:00`;
-  };
-
-  // Group pending sessions *only* for the selected week
-  const gridMap = {};
-  timetable.forEach(plan => {
-    if (plan.is_completed) return;
-    
-    const planMonday = getMondayOfDate(new Date(plan.planned_date + 'T00:00:00')).toISOString().split('T')[0];
-    if (planMonday !== selectedWeek) return;
-
-    const day = getDayName(plan.planned_date);
-    const hour = getSessionHour(plan.start_time);
-    if (day && hour) {
-      if (!gridMap[day]) gridMap[day] = {};
-      if (!gridMap[day][hour]) gridMap[day][hour] = [];
-      gridMap[day][hour].push(plan);
-    }
-  });
-
-  return (
-    <div style={{ overflowX: 'auto', marginTop: '8px' }}>
-      {/* Week Selector Navigation */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: '#f8fafc', padding: '10px 16px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-        <button 
-          onClick={handlePrevWeek} 
-          disabled={weeksList.indexOf(selectedWeek) === 0}
-          className="btn"
-          style={{ padding: '6px 12px', fontSize: '0.85rem', background: '#64748b' }}
-        >
-          ← Prev Week
-        </button>
-        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-          Week of: <span style={{ color: 'var(--accent-color)' }}>{new Date(selectedWeek + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-        </div>
-        <button 
-          onClick={handleNextWeek} 
-          disabled={weeksList.indexOf(selectedWeek) === weeksList.length - 1}
-          className="btn"
-          style={{ padding: '6px 12px', fontSize: '0.85rem', background: '#64748b' }}
-        >
-          Next Week →
-        </button>
-      </div>
-
-      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px', fontSize: '0.85rem', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
-        <thead>
-          <tr style={{ background: '#f8fafc', borderBottom: '2px solid var(--border-color)' }}>
-            <th style={{ padding: '12px 8px', borderRight: '1px solid var(--border-color)', width: '90px', textAlign: 'center', fontWeight: 700 }}>Time</th>
-            {daysOfWeek.map(day => (
-              <th key={day} style={{ padding: '12px 8px', borderRight: '1px solid var(--border-color)', textAlign: 'center', fontWeight: 700 }}>
-                {day.substring(0, 3)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {hourlySlots.map(hour => (
-            <tr key={hour} style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <td style={{ padding: '10px 8px', borderRight: '1px solid var(--border-color)', fontWeight: 600, textAlign: 'center', background: '#f8fafc', color: 'var(--text-secondary)' }}>
-                {hour}
-              </td>
-              {daysOfWeek.map(day => {
-                const sessions = gridMap[day]?.[hour] || [];
-                return (
-                  <td key={day} style={{ padding: '4px', borderRight: '1px solid var(--border-color)', verticalAlign: 'top', height: '65px', background: sessions.length > 0 ? '#eff6ff' : '#fff', transition: 'background 0.2s' }}>
-                    {sessions.map(plan => (
-                      <div 
-                        key={plan.plan_id}
-                        style={{
-                          background: 'linear-gradient(135deg, var(--accent-color), #60a5fa)',
-                          color: '#fff',
-                          padding: '6px 8px',
-                          borderRadius: '6px',
-                          marginBottom: '4px',
-                          fontSize: '0.75rem',
-                          boxShadow: '0 2px 4px rgba(59, 130, 246, 0.15)',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <div style={{ fontWeight: 600, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={getTopicName(plan.topic_id)}>
-                          {plan.is_remedial ? '🔄 [Remedial] ' : ''}{getTopicName(plan.topic_id)}
-                        </div>
-                        <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '2px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span>🕒 {plan.start_time} - {plan.end_time} ({plan.planned_minutes}m)</span>
-                          <div style={{ display: 'flex', gap: '3px' }}>
-                            <button 
-                              onClick={() => handleCompleteSession(plan.plan_id)}
-                              style={{ background: 'rgba(255,255,255,0.25)', border: 'none', color: '#fff', borderRadius: '3px', padding: '1px 3px', cursor: 'pointer', fontSize: '0.65rem' }}
-                              title="Done"
-                            >
-                              ✓
-                            </button>
-                            <button 
-                              onClick={() => handleEditSession(plan)}
-                              style={{ background: 'rgba(255,255,255,0.25)', border: 'none', color: '#fff', borderRadius: '3px', padding: '1px 3px', cursor: 'pointer', fontSize: '0.65rem' }}
-                              title="Edit"
-                            >
-                              ✏️
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }

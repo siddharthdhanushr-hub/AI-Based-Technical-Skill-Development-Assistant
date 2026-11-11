@@ -21,6 +21,7 @@ try:
     from backend.ai.routes import router as ai_router
     from backend.ml.routes import router as ml_router
     from backend.admin.routes import router as admin_router
+    from backend.mlops.routes import router as mlops_router
     import backend.user.models
     import backend.syllabus.models
     import backend.planning.models
@@ -34,6 +35,7 @@ except ImportError:
     from ai.routes import router as ai_router
     from ml.routes import router as ml_router
     from admin.routes import router as admin_router
+    from mlops.routes import router as mlops_router
     import user.models
     import syllabus.models
     import planning.models
@@ -59,6 +61,14 @@ except Exception:
 try:
     db = SessionLocal()
     db.execute(text("ALTER TABLE topics ADD COLUMN content_text TEXT"))
+    db.commit()
+    db.close()
+except Exception:
+    pass
+
+try:
+    db = SessionLocal()
+    db.execute(text("ALTER TABLE topics ADD COLUMN is_completed BOOLEAN DEFAULT 0"))
     db.commit()
     db.close()
 except Exception:
@@ -97,6 +107,7 @@ app.include_router(planning_router, prefix="/api/planning", tags=["Planning"])
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 app.include_router(ml_router, prefix="/api/ml", tags=["ML"])
 app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
+app.include_router(mlops_router, prefix="/api/mlops", tags=["MLOps"])
 
 @app.get("/")
 def root():

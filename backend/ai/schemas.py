@@ -142,4 +142,17 @@ class WellnessResponse(BaseModel):
     health_reminder: str
     mood_emoji: Optional[str] = None
 
+# --- Real-World Skill Projects ---
+class ProjectIdea(BaseModel):
+    title: str
+    level: str
+    tech_stack: str
+    description: str
+    key_deliverables: List[str]
+    portfolio_impact: str
+
+class ProjectIdeasResponse(BaseModel):
+    subject_name: str
+    projects: List[ProjectIdea]
+
 

@@ -9,6 +9,7 @@ class TopicBase(BaseModel):
     estimated_hours: Optional[float] = 2.0
     preferred_time: Optional[str] = None
     content_text: Optional[str] = None
+    is_completed: Optional[bool] = False
 
 class TopicCreate(TopicBase):
     pass

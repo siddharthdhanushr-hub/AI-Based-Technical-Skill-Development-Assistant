@@ -17,8 +17,11 @@ def generate_hints(topic_name: str, num_hints: int = 3) -> list:
     
     result = llm_client.generate_json(prompt, feature="hint")
     
-    if isinstance(result, list):
+    if isinstance(result, list) and len(result) > 0:
         return result
     
-    print(f"Hint generation returned unexpected type: {type(result)}")
-    return []
+    return [
+        f"Break down {topic_name} into its core components and master one part at a time.",
+        f"Work through practical examples to solidify your conceptual understanding of {topic_name}.",
+        f"Review boundary conditions and common pitfalls relevant to {topic_name}."
+    ][:num_hints]

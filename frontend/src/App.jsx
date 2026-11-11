@@ -1,44 +1,28 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import LoginRegister from './pages/LoginRegister';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import ProfilePreferences from './pages/ProfilePreferences';
-import SyllabusManager from './pages/SyllabusManager';
+import SkillManager from './pages/SkillManager';
 import QuizSession from './pages/QuizSession';
 import StudyTracker from './pages/StudyTracker';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
-import AdminDashboard from './pages/AdminDashboard';
-import api from './api';
+import CenturySkillsAssessment from './pages/CenturySkillsAssessment';
+import MLOpsInsights from './pages/MLOpsInsights';
 
 function Navigation() {
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token');
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/user/logout');
-    } catch (e) {
-      console.error(e);
-    }
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
-  if (!token) return null;
-
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <h2>AIML System</h2>
+        <h2>AI Based Technical Skill Development Assistant</h2>
       </div>
       <div className="nav-links">
         <Link to="/" className="nav-link">Dashboard</Link>
-        <Link to="/syllabus" className="nav-link">Syllabus</Link>
-        <Link to="/quiz" className="nav-link">Quizzes</Link>
-        <Link to="/tracker" className="nav-link">Tracker</Link>
+        <Link to="/century-skills" className="nav-link" style={{ fontWeight: 600, color: '#4f46e5' }}>
+          🎯 21st Century Assessment
+        </Link>
+        <Link to="/tracker" className="nav-link">Skill Tracker</Link>
+        <Link to="/skills" className="nav-link">Skill Manager</Link>
+        <Link to="/quiz" className="nav-link">Skill Quizzes</Link>
+        <Link to="/mlops-insights" className="nav-link">📊 MLOps Insights</Link>
         <Link to="/performance" className="nav-link">Performance</Link>
-        <Link to="/profile" className="nav-link">Profile</Link>
-        <Link to="/admin" className="nav-link" style={{ color: "#38bdf8", fontWeight: "bold" }}>🖥️ Admin</Link>
-        <button onClick={handleLogout} className="btn btn-secondary" style={{padding: '6px 12px', fontSize: '0.9rem'}}>Logout</button>
       </div>
     </nav>
   );
@@ -50,14 +34,20 @@ function App() {
       <Navigation />
       <div className="container">
         <Routes>
-          <Route path="/login" element={<LoginRegister />} />
           <Route path="/" element={<Dashboard />} />
-          <Route path="/profile" element={<ProfilePreferences />} />
-          <Route path="/syllabus" element={<SyllabusManager />} />
-          <Route path="/quiz" element={<QuizSession />} />
+          <Route path="/century-skills" element={<CenturySkillsAssessment />} />
+          <Route path="/mlops-insights" element={<MLOpsInsights />} />
+          <Route path="/skills" element={<SkillManager />} />
+          <Route path="/syllabus" element={<Navigate to="/skills" replace />} />
           <Route path="/tracker" element={<StudyTracker />} />
+          <Route path="/quiz" element={<QuizSession />} />
           <Route path="/performance" element={<PerformanceAnalytics />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          
+          {/* Hidden/Redirected routes */}
+          <Route path="/profile" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/admin" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </BrowserRouter>
