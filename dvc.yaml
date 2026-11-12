@@ -1,0 +1,18 @@
+stages:
+  validate_data:
+    cmd: python -c "import pandas as pd; df = pd.read_csv('backend/data/students.csv'); print(f'Validated dataset records: {len(df)}')"
+    deps:
+      - backend/data/students.csv
+    outs:
+      - backend/mlops_reports/metrics.json:
+          cache: false
+
+  evaluate_champion_model:
+    cmd: python -c "from backend.mlops.service import mlops_service; insights = mlops_service.get_insights(); print(f'Champion Model: {insights[\"phase1\"][\"models\"][\"champion_model\"]}')"
+    deps:
+      - backend/mlops/service.py
+      - backend/mlops_models/random_forest.joblib
+      - backend/mlops_models/feature_metadata.json
+    metrics:
+      - backend/mlops_reports/metrics.json:
+          cache: false
