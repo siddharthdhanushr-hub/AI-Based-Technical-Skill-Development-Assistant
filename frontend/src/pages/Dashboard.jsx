@@ -1,212 +1,333 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FALLBACK_CURRICULUM } from '../api';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
-export default function Dashboard() {
-  const [stats, setStats] = useState({
-    assessedCount: 0,
-    weakTopicsCount: 0,
-    quizzesCompleted: 0,
-    averageScore: 0
-  });
-
-  const [recentAssessments, setRecentAssessments] = useState([]);
+function Dashboard() {
+  const [profile, setProfile] = useState(null);
+  const [subjects, setSubjects] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [progress, setProgress] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Load student state from localStorage
-    const savedConfidence = JSON.parse(localStorage.getItem('topic_confidence') || '{}');
-    const quizHistory = JSON.parse(localStorage.getItem('quiz_history') || '[]');
+    const fetchData = async () => {
+      try {
+        const [profRes, subRes] = await Promise.all([
+          api.get('/user/profile'),
+          api.get('/syllabus/subjects')
+        ]);
+        setProfile(profRes.data);
+        setSubjects(subRes.data);
 
-    const confidenceEntries = Object.entries(savedConfidence);
-    const weakCount = confidenceEntries.filter(([_, conf]) => conf < 60).length;
-
-    const avgScore = quizHistory.length > 0 
-      ? Math.round(quizHistory.reduce((acc, q) => acc + q.score, 0) / quizHistory.length)
-      : 0;
-
-    setStats({
-      assessedCount: confidenceEntries.length,
-      weakTopicsCount: weakCount,
-      quizzesCompleted: quizHistory.length,
-      averageScore: avgScore
-    });
-
-    const recent = confidenceEntries.map(([topicId, conf]) => {
-      const allTopics = Object.values(FALLBACK_CURRICULUM.topics).flat();
-      const topicObj = allTopics.find(t => t.topic_id === topicId) || { topic_name: topicId };
-      const latestQuiz = quizHistory.find(q => q.topic_id === topicId);
-
-      let gripStatus = 'Provisional (Unassessed)';
-      if (latestQuiz) {
-        if (latestQuiz.score < 60) gripStatus = 'Needs Revision';
-        else if (latestQuiz.score < 80) gripStatus = 'Developing';
-        else gripStatus = 'Demonstrated Mastery';
+        // Fetch analytics & progress gracefully
+        try {
+          const [anaRes, progRes] = await Promise.all([
+            api.get('/ml/analytics'),
+            api.get('/user/progress')
+          ]);
+          setAnalytics(anaRes.data);
+          setProgress(progRes.data);
+        } catch (e) {
+          console.debug("Analytics loading background:", e);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
       }
-
-      return {
-        topic_id: topicId,
-        topic_name: topicObj.topic_name,
-        confidence: conf,
-        quizScore: latestQuiz ? `${latestQuiz.score}%` : 'Not Taken',
-        grip: gripStatus,
-        needsRevision: conf < 60
-      };
-    });
-
-    setRecentAssessments(recent);
+    };
+    fetchData();
   }, []);
 
+  if (!profile) return <div className="flex-center" style={{ height: '50vh' }}>Loading Dashboard...</div>;
+
+  const allTopics = subjects.flatMap(s => s.topics || []);
+  const completedTopics = allTopics.filter(t => t.is_completed).length;
+  const completionPct = allTopics.length > 0 ? Math.round((completedTopics / allTopics.length) * 100) : 0;
+
   return (
-    <div className="dashboard-page">
-      <header style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '8px' }}>
-          Personalized Skill & Readiness Dashboard
-        </h2>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Directly track your topic-wise self-confidence against demonstrated quiz performance.
-        </p>
-      </header>
-
-      {/* Metric Cards */}
-      <div className="grid-4" style={{ marginBottom: '32px' }}>
-        <div className="card stat-box">
-          <div className="stat-label">Assessed Topics</div>
-          <div className="stat-value">{stats.assessedCount}</div>
+    <div>
+      {/* Header Banner */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h1 style={{ margin: '0 0 6px 0' }}>Welcome, {profile.name}! 👋</h1>
+          <p style={{ fontSize: '1.05rem', margin: 0, color: 'var(--text-secondary)' }}>
+            Your personalized AI technical skill development and competency command center.
+          </p>
         </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button className="btn" onClick={() => navigate('/century-skills')} style={{ background: '#4f46e5' }}>
+            🎯 21st Century Assessment
+          </button>
+          <button className="btn" onClick={() => navigate('/tracker')} style={{ background: '#0284c7' }}>
+            📊 Skill Tracker
+          </button>
+          <button className="btn btn-secondary" onClick={() => navigate('/mlops-insights')}>
+            📈 MLOps Insights
+          </button>
+        </div>
+      </div>
 
-        <div className="card stat-box">
-          <div className="stat-label">Weak Topics (&lt; 60%)</div>
-          <div className="stat-value" style={{ color: stats.weakTopicsCount > 0 ? '#f87171' : 'var(--text-primary)' }}>
-            {stats.weakTopicsCount}
+      {/* Featured MLOps Gate Feature Banner */}
+      <div
+        className="glass-panel"
+        style={{
+          marginBottom: '28px',
+          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+          color: '#ffffff',
+          border: 'none',
+          padding: '24px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ maxWidth: '700px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: '20px', fontSize: '0.8rem', marginBottom: '10px' }}>
+              <span>🚀 MLOps Production Gate</span>
+              <span>•</span>
+              <span>Random Forest Champion Model (N=8,528 Students)</span>
+            </div>
+            <h2 style={{ color: '#fff', fontSize: '1.45rem', margin: '0 0 8px 0' }}>
+              Assess Your 21st-Century Tech Skills & Unlock Cross-Verification
+            </h2>
+            <p style={{ color: '#c7d2fe', fontSize: '0.92rem', margin: 0, lineHeight: 1.5 }}>
+              Input your self-reported confidence across 10 modern competencies (AI/ML, Data Science, Full-Stack, Cloud Systems, Security, etc.). Our trained MLOps champion evaluates your readiness threshold ($P \ge 50\%$). If qualified, take the cross-verification quiz directly; if skill gaps are detected, sync directly to the Skill Tracker for targeted preparation!
+            </p>
           </div>
-        </div>
-
-        <div className="card stat-box">
-          <div className="stat-label">Quizzes Completed</div>
-          <div className="stat-value" style={{ color: '#818cf8' }}>
-            {stats.quizzesCompleted}
-          </div>
-        </div>
-
-        <div className="card stat-box">
-          <div className="stat-label">Avg Quiz Score</div>
-          <div className="stat-value" style={{ color: '#34d399' }}>
-            {stats.averageScore}%
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => navigate('/century-skills')}
+              className="btn"
+              style={{ background: '#10b981', color: '#fff', padding: '12px 24px', fontWeight: 700 }}
+            >
+              🎯 Start Assessment Now
+            </button>
+            <button
+              onClick={() => navigate('/mlops-insights')}
+              className="btn"
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', padding: '12px 20px', boxShadow: 'none' }}
+            >
+              📊 Phase 1 & 2 Insights
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content Layout */}
-      <div className="grid-2">
-        {/* Topic Readiness Summary */}
-        <div className="card">
+      {/* KPI Stats Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '16px',
+        marginBottom: '28px'
+      }}>
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #3b82f6' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>SKILL TRACKS</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e293b', marginTop: '4px' }}>{subjects.length}</div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Active domains</span>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #10b981' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>COMPETENCY MASTERY</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginTop: '4px' }}>
+            {completedTopics} / {allTopics.length}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{completionPct}% competencies verified</span>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #8b5cf6' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>CAREER READINESS SCORE</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#8b5cf6', marginTop: '4px' }}>
+            {analytics?.exam_readiness_prob ? `${Math.round(analytics.exam_readiness_prob * 100)}%` : 'Active'}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Status: {analytics?.topic_mastery || 'In Progress'}</span>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid #f59e0b' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ASSESSMENTS COMPLETED</span>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#d97706', marginTop: '4px' }}>
+            {progress.length}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Evaluated skill quizzes</span>
+        </div>
+      </div>
+
+      {/* Main Content: 2 Columns */}
+      <div className="grid grid-cols-2">
+        {/* Left Column: Your Subjects & Topics Breakdown */}
+        <div className="glass-panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Topic Grip & Readiness</h3>
-            <Link to="/topics" className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
-              Explore Curriculum &rarr;
-            </Link>
+            <h2 style={{ margin: 0 }}>🛠️ Skill Tracks & Competencies</h2>
+            <button className="btn" onClick={() => navigate('/skills')} style={{ fontSize: '0.8rem', padding: '5px 12px', background: '#e0e7ff', color: '#4338ca' }}>
+              Manage Skills
+            </button>
           </div>
 
-          {recentAssessments.length === 0 ? (
-            <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <p>No topics assessed yet.</p>
-              <p style={{ fontSize: '0.9rem', marginTop: '6px' }}>
-                Select a topic from the curriculum to rate your confidence and unlock targeted practice.
-              </p>
-              <Link to="/topics" className="btn btn-primary" style={{ marginTop: '16px' }}>
-                Start Self-Assessment
-              </Link>
+          {subjects.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '12px' }}>
+              <p>No skill tracks found. Start by setting up your skills in Skill Manager or running the 21st-Century Assessment!</p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '10px' }}>
+                <button className="btn" onClick={() => navigate('/century-skills')}>
+                  🎯 Run 21st Century Assessment
+                </button>
+                <button className="btn btn-secondary" onClick={() => navigate('/skills')}>
+                  Setup Skills Manually
+                </button>
+              </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {recentAssessments.map(item => (
-                <div key={item.topic_id} style={{
-                  padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border-subtle)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div>
-                    <h4 style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '4px' }}>{item.topic_name}</h4>
-                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                      <span>Confidence: <strong>{item.confidence}%</strong></span>
-                      <span>Quiz: <strong>{item.quizScore}</strong></span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {subjects.map(sub => {
+                const sTopics = sub.topics || [];
+                const sDone = sTopics.filter(t => t.is_completed).length;
+                const sPct = sTopics.length > 0 ? Math.round((sDone / sTopics.length) * 100) : 0;
+
+                return (
+                  <div
+                    key={sub.subject_id}
+                    style={{
+                      background: '#fff',
+                      padding: '16px',
+                      borderRadius: '12px',
+                      border: '1px solid var(--border-color)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b' }}>{sub.subject_name}</h3>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: sPct === 100 ? '#10b981' : '#64748b' }}>
+                        {sDone}/{sTopics.length} done ({sPct}%)
+                      </span>
+                    </div>
+
+                    <div style={{ background: '#e2e8f0', borderRadius: '999px', height: '8px', overflow: 'hidden', marginBottom: '12px' }}>
+                      <div style={{
+                        background: sPct === 100 ? '#10b981' : 'var(--accent-color)',
+                        height: '100%',
+                        width: `${sPct}%`,
+                        borderRadius: '999px',
+                        transition: 'width 0.4s'
+                      }} />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        className="btn"
+                        onClick={() => navigate('/tracker')}
+                        style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#0284c7' }}
+                      >
+                        Track Competencies
+                      </button>
+                      {sTopics.length > 0 && (
+                        <button
+                          className="btn"
+                          onClick={() => navigate('/quiz', { state: { topicIds: sTopics.map(t => t.topic_id) } })}
+                          style={{ padding: '4px 10px', fontSize: '0.75rem', background: '#6366f1' }}
+                        >
+                          Assess Track (10 Qs)
+                        </button>
+                      )}
                     </div>
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className={`badge ${
-                      item.grip === 'Needs Revision' ? 'badge-low' :
-                      item.grip === 'Developing' ? 'badge-mod' :
-                      item.grip === 'Demonstrated Mastery' ? 'badge-high' : 'badge-info'
-                    }`}>
-                      {item.grip}
-                    </span>
-
-                    {item.needsRevision ? (
-                      <Link to={`/revision/${item.topic_id}`} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-                        Revise
-                      </Link>
-                    ) : (
-                      <Link to={`/quiz/${item.topic_id}`} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-                        Quiz
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Action Center & Recommendations */}
-        <div className="card">
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>Recommended Next Actions</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{
-              padding: '16px',
-              borderRadius: '12px',
-              background: 'rgba(99, 102, 241, 0.08)',
-              border: '1px solid rgba(99, 102, 241, 0.2)'
-            }}>
-              <span className="badge badge-info" style={{ marginBottom: '8px' }}>Action 1</span>
-              <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Rate Topic Confidence</h4>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Assess your familiarity on technical skill topics using the 0-100 slider. Topics below 60% automatically unlock focused revision.
-              </p>
-            </div>
+        {/* Right Column: AI Suite & Performance Insight */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Quick AI Learning Toolkit */}
+          <div className="glass-panel">
+            <h2 style={{ marginBottom: '14px' }}>⚡ AI Skill Development Suite</h2>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+              Instant AI tools available in Skill Tracker for every technical domain:
+            </p>
 
-            <div style={{
-              padding: '16px',
-              borderRadius: '12px',
-              background: 'rgba(245, 158, 11, 0.08)',
-              border: '1px solid rgba(245, 158, 11, 0.2)'
-            }}>
-              <span className="badge badge-mod" style={{ marginBottom: '8px' }}>Action 2</span>
-              <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Flip Revision Flashcards</h4>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Strengthen core concepts, definitions, and address common misconceptions before attempting the topic quiz.
-              </p>
-            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div
+                onClick={() => navigate('/tracker')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🚀</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Portfolio Projects</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Real-world builds with tech stack & resume impact</p>
+              </div>
 
-            <div style={{
-              padding: '16px',
-              borderRadius: '12px',
-              background: 'rgba(16, 185, 129, 0.08)',
-              border: '1px solid rgba(16, 185, 129, 0.2)'
-            }}>
-              <span className="badge badge-high" style={{ marginBottom: '8px' }}>Action 3</span>
-              <h4 style={{ fontWeight: 600, marginBottom: '4px' }}>Validate with Quiz Evidence</h4>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Demonstrate genuine knowledge through question-level performance to earn confirmed mastery status.
-              </p>
+              <div
+                onClick={() => navigate('/century-skills')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🎯</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>21st-Century Gating</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>10-skill self-evaluation with Random Forest champion</p>
+              </div>
+
+              <div
+                onClick={() => navigate('/tracker')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🗺️</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Mastery Roadmaps</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Structured progression & time allocation</p>
+              </div>
+
+              <div
+                onClick={() => navigate('/tracker')}
+                style={{
+                  background: '#f8fafc',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>📚</div>
+                <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Skill Briefs & Cards</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>Interactive flashcards & core concepts</p>
+              </div>
             </div>
+          </div>
+
+          {/* Weak Topics & Readiness Card */}
+          <div className="glass-panel">
+            <h2 style={{ marginBottom: '12px' }}>🎯 Skill Readiness Status</h2>
+            {analytics?.weak_topics && analytics.weak_topics.length > 0 ? (
+              <div style={{ background: '#fef2f2', padding: '14px', borderRadius: '10px', border: '1px solid #fecaca' }}>
+                <strong style={{ color: '#991b1b', fontSize: '0.9rem' }}>⚠️ High Priority Competencies to Practice:</strong>
+                <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', color: '#7f1d1d', fontSize: '0.85rem' }}>
+                  {analytics.weak_topics.map((wt, i) => (
+                    <li key={i}>{wt}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div style={{ background: '#f0fdf4', padding: '14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                <strong style={{ color: '#166534', fontSize: '0.9rem' }}>✨ On Track:</strong>
+                <p style={{ margin: '4px 0 0 0', color: '#14532d', fontSize: '0.85rem' }}>
+                  All tested skills demonstrate solid competency. Keep building projects and taking quizzes to advance your profile!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default Dashboard;

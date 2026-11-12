@@ -1,64 +1,14 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-.venv/
-venv/
-ENV/
-env/
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-*/.ipynb_checkpoints/*
-
-# Node / Frontend
 node_modules/
-dist/
-.vite/
-
-# Environment files
-.env
-.env.local
-
-# Database
-*.sqlite3
+venv/
+.venv/
+__pycache__/
 *.db
-
-# MLflow tracking artifacts
-mlruns/
-.mlflow/
-
-# DVC local cache
-.dvc/cache
-.dvc/tmp/
-data/dvc_remote/
-
-# IDE / OS
-.idea/
-.vscode/
-*.swp
-*.swo
-Thumbs.db
-Desktop.ini
+.env
+uploads/
+backend/env/
+env/
+scratch/
+dist/
+*.pyc
+.pytest_cache/
 .DS_Store

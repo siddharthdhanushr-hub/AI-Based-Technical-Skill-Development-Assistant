@@ -1,0 +1,11 @@
+subject_id,student_id,subject_name,topic_id,topic_name,difficulty_weight,estimated_hours
+2,1,21st Century Skills: Software Developer,10,Full-Stack Software Development,3.0,3.0
+2,1,21st Century Skills: Software Developer,11,Core Coding & Algorithms,3.0,3.0
+2,1,21st Century Skills: Software Developer,12,"Architecture, Testing & CI/CD",3.0,3.0
+2,1,21st Century Skills: Software Developer,13,Modern Database Systems,3.0,3.0
+2,1,21st Century Skills: Software Developer,14,Observability & SRE Troubleshooting,3.0,3.0
+2,1,21st Century Skills: Software Developer,15,AI & Machine Learning,3.0,3.0
+2,1,21st Century Skills: Software Developer,16,Data Science & Big Data,3.0,3.0
+2,1,21st Century Skills: Software Developer,17,Cyber Security & DevSecOps,3.0,3.0
+2,1,21st Century Skills: Software Developer,18,Cloud & Distributed Systems,3.0,3.0
+2,1,21st Century Skills: Software Developer,19,Technical Communication & Agile,3.0,3.0

@@ -1,43 +1,57 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import TopicSelection from './pages/TopicSelection';
-import ConfidenceAssessment from './pages/ConfidenceAssessment';
-import RevisionView from './pages/RevisionView';
+import SkillManager from './pages/SkillManager';
 import QuizSession from './pages/QuizSession';
+import StudyTracker from './pages/StudyTracker';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
+import CenturySkillsAssessment from './pages/CenturySkillsAssessment';
+import MLOpsInsights from './pages/MLOpsInsights';
 
 function Navigation() {
-  const location = useLocation();
-
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <span className="brand-badge">AI Assistant</span>
-        <h1 style={{ fontSize: '1.15rem' }}>Skill & Readiness Platform</h1>
+        <h2>AI Based Technical Skill Development Assistant</h2>
       </div>
       <div className="nav-links">
-        <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Dashboard</Link>
-        <Link to="/topics" className={`nav-link ${location.pathname.startsWith('/topics') ? 'active' : ''}`}>Curriculum</Link>
-        <Link to="/analytics" className={`nav-link ${location.pathname === '/analytics' ? 'active' : ''}`}>Analytics</Link>
+        <Link to="/" className="nav-link">Dashboard</Link>
+        <Link to="/century-skills" className="nav-link" style={{ fontWeight: 600, color: '#4f46e5' }}>
+          🎯 21st Century Assessment
+        </Link>
+        <Link to="/tracker" className="nav-link">Skill Tracker</Link>
+        <Link to="/skills" className="nav-link">Skill Manager</Link>
+        <Link to="/quiz" className="nav-link">Skill Quizzes</Link>
+        <Link to="/mlops-insights" className="nav-link">📊 MLOps Insights</Link>
+        <Link to="/performance" className="nav-link">Performance</Link>
       </div>
     </nav>
   );
 }
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
       <Navigation />
-      <main className="app-container">
+      <div className="container">
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/topics" element={<TopicSelection />} />
-          <Route path="/confidence/:topicId" element={<ConfidenceAssessment />} />
-          <Route path="/revision/:topicId" element={<RevisionView />} />
-          <Route path="/quiz/:topicId" element={<QuizSession />} />
-          <Route path="/analytics" element={<PerformanceAnalytics />} />
+          <Route path="/century-skills" element={<CenturySkillsAssessment />} />
+          <Route path="/mlops-insights" element={<MLOpsInsights />} />
+          <Route path="/skills" element={<SkillManager />} />
+          <Route path="/syllabus" element={<Navigate to="/skills" replace />} />
+          <Route path="/tracker" element={<StudyTracker />} />
+          <Route path="/quiz" element={<QuizSession />} />
+          <Route path="/performance" element={<PerformanceAnalytics />} />
+          
+          {/* Hidden/Redirected routes */}
+          <Route path="/profile" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/admin" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </main>
+      </div>
     </BrowserRouter>
   );
 }
+
+export default App;

@@ -1,0 +1,14 @@
+answer_id,assessment_id,question_id,selected_option,is_correct,response_time,is_skipped
+1,1,1,A,True,12.5,False
+2,2,1,C,False,15.0,False
+3,2,2,B,False,15.0,False
+4,3,85,A,True,15.0,False
+5,3,86,A,False,15.0,False
+6,3,87,B,False,15.0,False
+7,3,88,C,False,15.0,False
+8,3,89,D,False,15.0,False
+9,3,90,A,False,15.0,False
+10,3,91,,False,15.0,True
+11,3,92,A,False,15.0,False
+12,3,93,C,True,15.0,False
+13,3,94,B,False,15.0,False

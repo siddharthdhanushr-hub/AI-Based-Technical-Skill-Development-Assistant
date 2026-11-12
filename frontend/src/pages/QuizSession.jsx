@@ -1,339 +1,426 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { FALLBACK_CURRICULUM, logLearningEvent, fetchTopicQuiz } from '../api';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../api';
 
-export default function QuizSession() {
-  const { topicId } = useParams();
-  const navigate = useNavigate();
-
+function QuizSession() {
+  const [subjects, setSubjects] = useState([]);
+  const [timetable, setTimetable] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [quizStatus, setQuizStatus] = useState('IDLE'); // IDLE, GENERATING, READY, SUBMITTING, DONE
+  
   const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [attemptId, setAttemptId] = useState(`att_${Date.now()}`);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [scoreData, setScoreData] = useState(null);
-  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  const [answers, setAnswers] = useState({}); // { question_id: "A" }
+  const [score, setScore] = useState(null);
 
-  // Load questions
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
-    const loadQuestions = async () => {
-      setLoading(true);
-      const qList = await fetchTopicQuiz(topicId);
-      const fallbackList = qList && qList.length > 0 ? qList : (FALLBACK_CURRICULUM.quizzes[topicId] || [
-        {
-          question_id: 'q_gen_1',
-          text: 'Which step is critical to prevent target leakage when preprocessing training data?',
-          options: [
-            'A. Fit transformations (e.g. scalers, encoders) strictly on the training partition only',
-            'B. Impute missing values across the entire dataset before splitting',
-            'C. Normalize test features using test set mean and standard deviation',
-            'D. Compute target encoding on the combined train and test sets'
-          ],
-          correct_option: 'A',
-          explanation: 'Fitting scalers, imputers, or encoders on data that includes the test partition leaks information about the validation distribution.'
+    const fetchData = async () => {
+      try {
+        const subRes = await api.get('/syllabus/subjects');
+        setSubjects(subRes.data);
+        
+        // If topicIds list is passed in state, auto-generate the multi-topic adaptive quiz immediately
+        if (location.state && location.state.topicIds) {
+          const tIds = location.state.topicIds;
+          setSelectedTopics(tIds.map(String));
+          setQuizStatus('GENERATING');
+          
+          // Clear history state so that browser refresh or resetting does not re-trigger auto-generation
+          navigate(location.pathname, { replace: true, state: {} });
+          
+          try {
+            const quizRes = await api.post('/ai/quiz/generate', { topic_ids: tIds });
+            setQuestions(quizRes.data.questions);
+            setQuizStatus('READY');
+            setAnswers({});
+          } catch (err) {
+            alert(err.response?.data?.detail || 'Failed to auto-generate adaptive quiz.');
+            setQuizStatus('IDLE');
+          }
+        } else if (location.state && location.state.topicId) {
+          // Fallback if a single topicId is passed
+          const tId = location.state.topicId.toString();
+          setSelectedTopics([tId]);
+          setQuizStatus('GENERATING');
+          
+          // Clear history state
+          navigate(location.pathname, { replace: true, state: {} });
+          
+          try {
+            const quizRes = await api.post('/ai/quiz/generate', { topic_ids: [parseInt(tId)] });
+            setQuestions(quizRes.data.questions);
+            setQuizStatus('READY');
+            setAnswers({});
+          } catch (err) {
+            alert(err.response?.data?.detail || 'Failed to auto-generate quiz.');
+            setQuizStatus('IDLE');
+          }
         }
-      ]);
-
-      setQuestions(fallbackList);
-      setLoading(false);
-
-      logLearningEvent({
-        event_type: 'quiz_started',
-        topic_id: topicId,
-        attempt_id: attemptId,
-        question_count: fallbackList.length
-      });
+      } catch (err) {
+        console.error("QuizSession subjects fetch error:", err);
+      }
     };
+    fetchData();
+  }, [navigate, location]);
 
-    loadQuestions();
-  }, [topicId, attemptId]);
-
-  const currentQ = questions[currentIndex];
-
-  const handleSelectOption = (optionKey) => {
-    if (submitted) return;
-    const responseTime = (Date.now() - questionStartTime) / 1000;
-
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [currentQ.question_id]: optionKey
-    });
-
-    logLearningEvent({
-      event_type: 'question_answered',
-      topic_id: topicId,
-      attempt_id: attemptId,
-      question_id: currentQ.question_id,
-      selected_option: optionKey,
-      response_time_seconds: responseTime
-    });
+  const handleGenerateQuiz = async () => {
+    if (selectedTopics.length === 0) return;
+    setQuizStatus('GENERATING');
+    try {
+      const res = await api.post('/ai/quiz/generate', { topic_ids: selectedTopics.map(id => parseInt(id)) });
+      setQuestions(res.data.questions);
+      setQuizStatus('READY');
+      setAnswers({});
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to generate quiz. Make sure Ollama is running!');
+      setQuizStatus('IDLE');
+    }
   };
 
-  const handleNextQuestion = () => {
-    setQuestionStartTime(Date.now());
-    setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1));
+  const handleSelectAnswer = (qId, option) => {
+    setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  const handlePrevQuestion = () => {
-    setQuestionStartTime(Date.now());
-    setCurrentIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleRetakeQuiz = () => {
-    setAttemptId(`att_${Date.now()}`);
-    setSelectedAnswers({});
-    setSubmitted(false);
-    setScoreData(null);
-    setCurrentIndex(0);
-    setQuestionStartTime(Date.now());
+  const handleSelectMultiAnswer = (qId, option) => {
+    const currentVal = answers[qId] || '';
+    let selected = currentVal ? currentVal.split(',') : [];
+    if (selected.includes(option)) {
+      selected = selected.filter(o => o !== option);
+    } else {
+      selected.push(option);
+    }
+    selected.sort();
+    setAnswers(prev => ({ ...prev, [qId]: selected.join(',') }));
   };
 
   const handleSubmitQuiz = async () => {
-    let correctCount = 0;
-    const feedback = questions.map((q) => {
-      const selected = selectedAnswers[q.question_id];
-      const isCorrect = selected === q.correct_option;
-      if (isCorrect) correctCount++;
-      return {
+    setQuizStatus('SUBMITTING');
+    const submissionData = {
+      topic_id: selectedTopics.length > 0 ? parseInt(selectedTopics[0]) : null,
+      answers: questions.map(q => ({
         question_id: q.question_id,
-        selected,
-        correct: q.correct_option,
-        isCorrect,
-        explanation: q.explanation
-      };
-    });
-
-    const finalScore = Math.round((correctCount / questions.length) * 100);
-
-    // Retrieve self-reported confidence for comparison
-    const confidenceMap = JSON.parse(localStorage.getItem('topic_confidence') || '{}');
-    const selfConfidence = confidenceMap[topicId] ?? null;
-
-    let readinessStatus = 'Developing';
-    let recommendation = 'Review incorrect question explanations and retest in 24 hours.';
-    if (finalScore >= 80) {
-      readinessStatus = 'Demonstrated Mastery';
-      recommendation = 'Strong performance demonstrated! You have validated empirical command of this topic.';
-    } else if (finalScore < 60) {
-      readinessStatus = 'Needs Revision';
-      recommendation = 'Scores below 60% indicate conceptual gaps. Review the flashcards and concept summaries.';
-    }
-
-    const calculatedData = {
-      score: finalScore,
-      correctCount,
-      totalCount: questions.length,
-      feedback,
-      readinessStatus,
-      recommendation,
-      selfConfidence
+        selected_option: answers[q.question_id] || null,
+        response_time: 15.0, // Hardcoded for MVP, ideally tracked in frontend
+        is_skipped: !answers[q.question_id]
+      }))
     };
 
-    setScoreData(calculatedData);
-    setSubmitted(true);
-
-    // Save to local quiz history
-    const quizHistory = JSON.parse(localStorage.getItem('quiz_history') || '[]');
-    quizHistory.unshift({
-      attempt_id: attemptId,
-      topic_id: topicId,
-      score: finalScore,
-      readiness: readinessStatus,
-      timestamp: new Date().toISOString()
-    });
-    localStorage.setItem('quiz_history', JSON.stringify(quizHistory));
-
-    // Log telemetry events
-    await logLearningEvent({
-      event_type: 'quiz_submitted',
-      topic_id: topicId,
-      attempt_id: attemptId,
-      quiz_score: finalScore
-    });
-
-    await logLearningEvent({
-      event_type: 'quiz_result_calculated',
-      topic_id: topicId,
-      attempt_id: attemptId,
-      quiz_score: finalScore,
-      readiness_status: readinessStatus
-    });
+    try {
+      const res = await api.post('/ai/assessment/submit', submissionData);
+      setScore(res.data.score);
+      setQuizStatus('DONE');
+      if (res.data.performance_alert) {
+        alert(res.data.performance_alert);
+      }
+    } catch (err) {
+      alert('Failed to submit assessment');
+      setQuizStatus('READY');
+    }
   };
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 0' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Loading topic quiz questions...</p>
-      </div>
-    );
-  }
+  const getTopicName = (topicId) => {
+    for (let s of subjects) {
+      const t = s.topics.find(t => t.topic_id === topicId);
+      if (t) return t.topic_name;
+    }
+    return `Topic #${topicId}`;
+  };
+
+  const getDifficultyBadgeStyle = (difficulty) => {
+    const diff = (difficulty || 'Medium').toLowerCase();
+    if (diff === 'easy') {
+      return { color: '#047857', background: '#d1fae5' }; // green
+    } else if (diff === 'hard') {
+      return { color: '#b91c1c', background: '#fee2e2' }; // red
+    } else {
+      return { color: '#1d4ed8', background: '#dbeafe' }; // blue
+    }
+  };
+
+  const completedTopicIds = Array.from(new Set([
+    ...timetable.filter(s => s.is_completed).map(s => s.topic_id),
+    ...subjects.flatMap(s => (s.topics || []).filter(t => t.is_completed).map(t => t.topic_id))
+  ]));
 
   return (
-    <div style={{ maxWidth: '840px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <Link to="/topics" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
-          &larr; Back to Topics
-        </Link>
-        <span className="badge badge-info">Demonstrated Mastery Assessment</span>
-      </div>
+    <div style={{maxWidth: '800px', margin: '0 auto'}}>
+      <h1 style={{marginBottom: '32px'}}>🎯 Technical Skill Assessment Engine</h1>
 
-      {!submitted ? (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-              Question {currentIndex + 1} of {questions.length}
-            </span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--accent-light)', fontFamily: 'var(--font-mono)' }}>
-              Attempt: {attemptId.substring(4, 12)}
-            </span>
-          </div>
-
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '24px', lineHeight: 1.5 }}>
-            {currentQ.text}
-          </h3>
-
-          <div style={{ marginBottom: '28px' }}>
-            {currentQ.options.map((opt) => {
-              const optKey = opt.charAt(0);
-              const isSelected = selectedAnswers[currentQ.question_id] === optKey;
-              return (
-                <div
-                  key={optKey}
-                  onClick={() => handleSelectOption(optKey)}
-                  className={`mcq-option ${isSelected ? 'selected' : ''}`}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={isSelected}
-                >
-                  <div style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: isSelected ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.08)',
-                    color: isSelected ? 'white' : 'var(--text-secondary)',
-                    fontWeight: 700,
-                    fontSize: '0.9rem'
-                  }}>
-                    {optKey}
-                  </div>
-                  <span style={{ fontSize: '0.95rem' }}>{opt.substring(3)}</span>
+      {quizStatus === 'IDLE' && (
+        <div className="glass-panel">
+          <h2>Select Competencies</h2>
+          <p>Choose one or more technical competencies to generate an adaptive 10-question skill assessment. Mastered competencies are tagged.</p>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '16px', margin: '20px 0'}}>
+            {subjects.map(subject => (
+              <div key={subject.subject_id} style={{border: '1px solid var(--border-color)', borderRadius: '8px', padding: '16px', background: '#fff'}}>
+                <h3 style={{margin: '0 0 12px 0', color: 'var(--accent-color)', fontSize: '1.05rem'}}>{subject.subject_name}</h3>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                  {subject.topics.map(t => {
+                    const isCompleted = completedTopicIds.includes(t.topic_id);
+                    const isChecked = selectedTopics.includes(t.topic_id.toString());
+                    return (
+                      <label 
+                        key={t.topic_id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '8px 12px',
+                          background: isChecked ? '#eff6ff' : '#f9fafb',
+                          border: `1px solid ${isChecked ? 'var(--accent-color)' : 'var(--border-color)'}`,
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedTopics([...selectedTopics, t.topic_id.toString()]);
+                            } else {
+                              setSelectedTopics(selectedTopics.filter(id => id !== t.topic_id.toString()));
+                            }
+                          }}
+                          style={{accentColor: 'var(--accent-color)'}}
+                        />
+                        <span style={{flex: 1}}>{t.topic_name}</span>
+                        {isCompleted && (
+                          <span style={{fontSize: '0.7rem', padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: '4px', fontWeight: 600}}>
+                            Mastered
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button
-              onClick={handlePrevQuestion}
-              disabled={currentIndex === 0}
-              className="btn btn-secondary"
-              style={{ opacity: currentIndex === 0 ? 0.5 : 1 }}
-            >
-              &larr; Previous
-            </button>
-
-            {currentIndex < questions.length - 1 ? (
-              <button onClick={handleNextQuestion} className="btn btn-primary">
-                Next Question &rarr;
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmitQuiz}
-                disabled={Object.keys(selectedAnswers).length === 0}
-                className="btn btn-primary"
-                style={{ background: 'var(--success)' }}
-              >
-                Submit Quiz & Calculate Grip
-              </button>
-            )}
-          </div>
+          <button 
+            className="btn" 
+            onClick={handleGenerateQuiz} 
+            disabled={selectedTopics.length === 0} 
+            style={{width: '100%', padding: '12px', fontSize: '1rem', fontWeight: 600}}
+          >
+            ✨ Generate 10-Question Skill Assessment ({selectedTopics.length} Competencies selected)
+          </button>
         </div>
-      ) : (
-        /* Detailed Results Breakdown */
-        <div>
-          <div className="card" style={{ marginBottom: '24px', textAlign: 'center', padding: '36px 24px' }}>
-            <span className="badge badge-info" style={{ marginBottom: '12px' }}>Evaluation Complete</span>
-            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: scoreData.score >= 80 ? '#34d399' : scoreData.score >= 60 ? '#fbbf24' : '#f87171' }}>
-              {scoreData.score}%
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginTop: '6px' }}>
-              You answered <strong>{scoreData.correctCount}</strong> of <strong>{scoreData.totalCount}</strong> questions correctly.
-            </p>
+      )}
 
-            {/* Comparison of Confidence vs Demonstrated Score */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px', flexWrap: 'wrap' }}>
-              <div style={{ padding: '8px 16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Self-Reported Confidence:</span>{' '}
-                <strong>{scoreData.selfConfidence !== null ? `${scoreData.selfConfidence}%` : 'Unrated'}</strong>
-              </div>
-              <div style={{ padding: '8px 16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Demonstrated Readiness:</span>{' '}
-                <span className={`badge ${
-                  scoreData.readinessStatus === 'Needs Revision' ? 'badge-low' :
-                  scoreData.readinessStatus === 'Developing' ? 'badge-mod' : 'badge-high'
-                }`}>
-                  {scoreData.readinessStatus}
-                </span>
-              </div>
-            </div>
+      {quizStatus === 'GENERATING' && (
+        <div className="glass-panel flex-center" style={{flexDirection: 'column', height: '200px'}}>
+          <div style={{fontSize: '3rem', marginBottom: '16px'}}>🤖</div>
+          <h3>AI Engine is generating your 10 skill questions...</h3>
+          <p>Synthesizing technical scenarios, code nuances, and practical problems...</p>
+        </div>
+      )}
 
-            <div style={{ marginTop: '24px', padding: '16px 20px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', border: '1px solid var(--border-subtle)', maxWidth: '640px', margin: '24px auto 0', textAlign: 'left' }}>
-              <strong style={{ color: 'var(--accent-light)', display: 'block', marginBottom: '4px' }}>Recommended Next Action:</strong>
-              <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>{scoreData.recommendation}</span>
-            </div>
-          </div>
-
-          {/* Question Breakdown */}
-          <div className="card" style={{ marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '20px' }}>Question Explanations</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {questions.map((q, idx) => {
-                const fb = scoreData.feedback.find(f => f.question_id === q.question_id);
-                return (
-                  <div key={q.question_id} style={{
-                    padding: '18px',
-                    borderRadius: '12px',
-                    background: fb?.isCorrect ? 'rgba(16, 185, 129, 0.04)' : 'rgba(239, 68, 68, 0.04)',
-                    border: `1px solid ${fb?.isCorrect ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+      {quizStatus === 'READY' && (
+        <div className="glass-panel">
+          <h2 style={{marginBottom: '24px'}}>Quiz Time! ({questions.length} Questions)</h2>
+          
+          {questions.map((q, idx) => {
+            const isFIB = q.question_type === 'FIB';
+            const isDescriptive = q.question_type === 'DESCRIPTIVE';
+            const isMultiMCQ = q.question_type === 'MULTI_MCQ' || (q.correct_option && q.correct_option.includes(','));
+            
+            return (
+              <div key={q.question_id} style={{marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid var(--border-color)'}}>
+                <h3 style={{fontSize: '1.1rem', marginBottom: '16px'}}>
+                  <span style={{color: 'var(--accent-color)', marginRight: '8px'}}>Q{idx + 1}.</span> 
+                  {q.question_text}
+                  <span style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '8px', padding: '2px 6px', background: '#e5e7eb', borderRadius: '4px', display: 'inline-block'}}>
+                    {q.question_type || 'MCQ'}
+                  </span>
+                  <span style={{
+                    fontSize: '0.75rem', 
+                    marginLeft: '6px', 
+                    padding: '2px 6px', 
+                    borderRadius: '4px', 
+                    display: 'inline-block',
+                    fontWeight: 600,
+                    ...getDifficultyBadgeStyle(q.difficulty)
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Question {idx + 1}</span>
-                      <span className={`badge ${fb?.isCorrect ? 'badge-high' : 'badge-low'}`}>
-                        {fb?.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                      </span>
-                    </div>
-
-                    <p style={{ fontWeight: 600, marginBottom: '12px' }}>{q.text}</p>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                      Your Answer: <strong>Option {fb?.selected || 'Skipped'}</strong> | Correct Answer: <strong>Option {fb?.correct}</strong>
-                    </p>
-                    <div style={{ fontSize: '0.9rem', background: 'rgba(0, 0, 0, 0.25)', padding: '12px 14px', borderRadius: '8px', color: '#cbd5e1' }}>
-                      💡 <strong>Explanation:</strong> {fb?.explanation}
-                    </div>
+                    {q.difficulty || 'Medium'}
+                  </span>
+                  <span style={{fontSize: '0.75rem', color: '#065f46', marginLeft: '6px', padding: '2px 6px', background: '#d1fae5', borderRadius: '4px', display: 'inline-block'}}>
+                    {getTopicName(q.topic_id)}
+                  </span>
+                </h3>
+                
+                {isFIB && (
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="Type your answer here..."
+                    value={answers[q.question_id] || ''}
+                    onChange={e => handleSelectAnswer(q.question_id, e.target.value)}
+                    style={{width: '100%', maxWidth: '400px'}}
+                  />
+                )}
+                
+                {isDescriptive && (
+                  <textarea
+                    className="input-field"
+                    rows="3"
+                    placeholder="Write your answer here..."
+                    value={answers[q.question_id] || ''}
+                    onChange={e => handleSelectAnswer(q.question_id, e.target.value)}
+                    style={{width: '100%'}}
+                  />
+                )}
+                
+                {isMultiMCQ && (
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 8px 0'}}><em>Select all that apply (Multiple Correct Answers):</em></p>
+                    {['A', 'B', 'C', 'D'].map(opt => {
+                      const optionText = q[`option_${opt.toLowerCase()}`] || q[`option_${opt}`] || q[`Option_${opt}`];
+                      if (!optionText) return null;
+                      const isChecked = (answers[q.question_id] || '').split(',').includes(opt);
+                      return (
+                        <label 
+                          key={opt}
+                          style={{
+                            padding: '12px 16px', 
+                            border: '1px solid',
+                            borderColor: isChecked ? 'var(--accent-color)' : 'var(--border-color)',
+                            borderRadius: '8px',
+                            background: isChecked ? '#eff6ff' : '#f9fafb',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <input 
+                            type="checkbox" 
+                            checked={isChecked} 
+                            onChange={() => handleSelectMultiAnswer(q.question_id, opt)}
+                            style={{accentColor: 'var(--accent-color)', width: '18px', height: '18px'}}
+                          />
+                          <span><strong>{opt}.</strong> {optionText}</span>
+                        </label>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                )}
+
+                {!isMultiMCQ && q.question_type === 'MCQ' && (
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                    {['A', 'B', 'C', 'D'].map(opt => {
+                      const optionText = q[`option_${opt.toLowerCase()}`] || q[`option_${opt}`] || q[`Option_${opt}`];
+                      if (!optionText) return null;
+                      const isSelected = answers[q.question_id] === opt;
+                      return (
+                        <label 
+                          key={opt}
+                          style={{
+                            padding: '12px 16px', 
+                            border: '1px solid',
+                            borderColor: isSelected ? 'var(--accent-color)' : 'var(--border-color)',
+                            borderRadius: '8px',
+                            background: isSelected ? '#eff6ff' : '#f9fafb',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <input 
+                            type="radio" 
+                            name={`q_${q.question_id}`} 
+                            checked={isSelected} 
+                            onChange={() => handleSelectAnswer(q.question_id, opt)}
+                            style={{accentColor: 'var(--accent-color)', width: '18px', height: '18px'}}
+                          />
+                          <span><strong>{opt}.</strong> {optionText}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          <button className="btn" onClick={handleSubmitQuiz} style={{width: '100%', padding: '16px', fontSize: '1.1rem'}}>
+            Submit Quiz
+          </button>
+        </div>
+      )}
+
+      {quizStatus === 'SUBMITTING' && (
+        <div className="glass-panel flex-center" style={{height: '200px'}}>
+          <h3>Grading...</h3>
+        </div>
+      )}
+
+      {quizStatus === 'DONE' && (
+        <div className="glass-panel">
+          <div style={{textAlign: 'center', marginBottom: '32px'}}>
+            <h2 style={{fontSize: '2rem'}}>Quiz Completed!</h2>
+            <div style={{
+              fontSize: '4rem', 
+              fontWeight: 800, 
+              color: score >= 50 ? 'var(--success-color)' : 'var(--danger-color)',
+              margin: '16px 0'
+            }}>
+              {score.toFixed(1)}%
             </div>
+            <p>Your behavioural metrics and scores have been recorded for the Phase 4 ML Engine.</p>
           </div>
 
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center' }}>
-            <button onClick={handleRetakeQuiz} className="btn btn-secondary">
-              Retake Quiz (New Attempt)
-            </button>
-            <Link to="/dashboard" className="btn btn-outline">
-              View Dashboard
-            </Link>
-            <Link to={`/revision/${topicId}`} className="btn btn-primary">
-              Review Flashcards
-            </Link>
-          </div>
+          <h3 style={{borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px'}}>Explanations</h3>
+          {questions.map((q, idx) => {
+            const userAns = answers[q.question_id] || '';
+            const isFIB = q.question_type === 'FIB';
+            const isDescriptive = q.question_type === 'DESCRIPTIVE';
+            const isMultiMCQ = q.question_type === 'MULTI_MCQ' || (q.correct_option && q.correct_option.includes(','));
+            
+            let isCorrect = false;
+            if (isFIB) {
+              isCorrect = userAns.trim().toLowerCase() === q.correct_option.trim().toLowerCase();
+            } else if (isDescriptive) {
+              isCorrect = userAns.trim().length >= 10;
+            } else if (isMultiMCQ) {
+              const uList = userAns.split(',').map(s => s.trim().toUpperCase()).filter(Boolean).sort().join(',');
+              const cList = q.correct_option.split(',').map(s => s.split(',')[0].trim().toUpperCase()).filter(Boolean).sort().join(',');
+              isCorrect = uList === cList || userAns.split(',').map(s => s.trim().toUpperCase()).filter(Boolean).sort().join(',') === q.correct_option.split(',').map(s => s.trim().toUpperCase()).filter(Boolean).sort().join(',');
+            } else {
+              const cleanCorrect = q.correct_option.split(',')[0].trim().toUpperCase();
+              isCorrect = userAns.toUpperCase() === cleanCorrect || userAns.toUpperCase() === q.correct_option.toUpperCase();
+            }
+            
+            return (
+              <div key={q.question_id} style={{marginBottom: '24px', padding: '16px', borderRadius: '8px', background: isCorrect ? '#ecfdf5' : '#fef2f2', border: `1px solid ${isCorrect ? '#a7f3d0' : '#fecaca'}`}}>
+                <h4 style={{marginBottom: '8px'}}>Q{idx + 1}. {q.question_text}</h4>
+                <p style={{margin: '0 0 8px 0'}}>
+                  <strong>Your Answer:</strong> {userAns || 'Skipped'} {isCorrect ? '✅' : '❌'} <br/>
+                  <strong>Model Answer / Key:</strong> {q.correct_option}
+                </p>
+                <p style={{margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)'}}>
+                  <strong>Explanation:</strong> {q.explanation}
+                </p>
+              </div>
+            );
+          })}
+
+          <button className="btn" onClick={() => { setQuizStatus('IDLE'); setScore(null); }} style={{width: '100%', marginTop: '16px'}}>
+            Take Another Quiz
+          </button>
         </div>
       )}
     </div>
   );
 }
+
+export default QuizSession;

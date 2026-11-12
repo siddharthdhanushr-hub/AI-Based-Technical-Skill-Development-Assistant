@@ -1,0 +1,2 @@
+student_id,name,email,password_hash,created_at
+1,Test User,test@example.com,$2b$12$gvVsXzVaY8rIgmBXoMNCBOk3rc2/KdjMfLXeobpc3mUvwIDGsxRqu,2026-11-08 10:55:54.624678
