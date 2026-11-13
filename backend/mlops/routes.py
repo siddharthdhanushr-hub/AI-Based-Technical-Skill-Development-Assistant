@@ -69,14 +69,19 @@ def evaluate_student_skills(
     """
     Executes the trained Phase 2 Random Forest champion model + ensemble voting.
     Determines whether student is ready for the direct verification quiz or should prepare in the tracker.
+    Traced using MLflow Observability (Experiment 1).
     """
     try:
-        result = mlops_service.predict_student_assessment(
-            user_scores=payload.skills,
-            target_role=payload.target_role,
-            threshold=payload.threshold or 0.50
-        )
-        return result
+        from backend.mlops.tracing import trace_competency_prediction
+        try:
+            return trace_competency_prediction(payload.skills, user_id=str(current_user.student_id))
+        except Exception as trace_err:
+            print(f"Tracing fallback note: {trace_err}")
+            return mlops_service.predict_student_assessment(
+                user_scores=payload.skills,
+                target_role=payload.target_role,
+                threshold=payload.threshold or 0.50
+            )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

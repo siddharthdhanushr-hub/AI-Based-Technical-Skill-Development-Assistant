@@ -338,9 +338,12 @@ def generate_summary(
         raise HTTPException(status_code=404, detail="Topic not found")
     
     try:
-        summary_text = summary_generator.generate_summary(topic.topic_name)
+        from backend.mlops.tracing import trace_skill_summary
+        traced_res = trace_skill_summary(topic.topic_name, user_id=str(current_user.student_id))
+        summary_text = traced_res.get("summary")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Tracing fallback note: {e}")
+        summary_text = summary_generator.generate_summary(topic.topic_name)
     
     return {"topic_name": topic.topic_name, "summary": summary_text}
 

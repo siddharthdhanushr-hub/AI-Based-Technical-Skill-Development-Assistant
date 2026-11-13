@@ -233,11 +233,16 @@ Per direct **evaluator directive**, the system curates **10 modern technical com
 
 ---
 
-### 3.4 MLflow Model Registry Lineage
-- **Model Name:** `Technical_Assessment_Gate_Champion`
-- **Active Version:** `v2.0`
-- **Assigned Stage:** `Production`
-- **Artifact Hash:** SHA-256 validated against `backend/mlops_models/random_forest.joblib`.
+### 3.4 MLflow Model Registry & Versioning
+- **Registered Model Name:** `AssessmentChampionPredictor`
+- **Dashboard URL:** `http://localhost:5000/#/models/AssessmentChampionPredictor`
+- **Model Versioning Matrix:**
+  | Version | Current Stage | Aliases | Model Architecture | Accuracy | ROC-AUC | F1-Score | Status / Role |
+  | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+  | **v1** | `Staging` | `@challenger`, `@baseline` | `DecisionTreeClassifier` | 72.04% | 0.7885 | 0.6762 | Candidate Baseline (Pre-Release) |
+  | **v2** | `Production` | `@champion`, `@production` | `RandomForestClassifier` | 73.51% | 0.7949 | 0.7061 | Champion Model (Active Live Inference) |
+- **Governance & Promotion:** Version 2 was promoted to `Production` stage following evaluation on $N=1,706$ held-out students, achieving higher ROC-AUC (+0.0064) and sub-12ms p95 latency.
+- **Model Aliases:** The live FastAPI inference service loads model artifacts via the `@champion` alias, decoupling production code from hardcoded version numbers.
 
 ---
 
@@ -370,3 +375,4 @@ def predict_student_assessment(self, skills_input: dict, target_role: str = "Sof
 | **"How is zero data leakage guaranteed?"** | *"Our 70/30 stratified split was established prior to feature engineering. Imputers, scaler parameters, and composite bounds were derived exclusively from the 6,822 training profiles and transformed onto the 1,706 test profiles."* |
 | **"How does DVC ensure reproducibility?"** | *"DVC tracks raw datasets, intermediate feature CSVs, and model weights via MD5 hashes in `dvc.lock`. Running `dvc repro` reads `dvc.yaml` and executes only the stages whose input hashes have changed."* |
 | **"How is Docker verified in CI/CD?"** | *"In our GitHub Actions workflow, after code quality and behavioral tests pass, Job 2 builds the container using our multi-stage Dockerfile and spins it up in detached mode. It executes a smoke test polling `/health` with retries. If the container fails to return HTTP 200 within 10 seconds, the CI/CD pipeline fails and blocks the PR from merging."* |
+

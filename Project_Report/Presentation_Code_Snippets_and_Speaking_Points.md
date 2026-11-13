@@ -344,6 +344,78 @@ const runEvaluation = async () => {
 
 ---
 
+## 📌 Snippet 8: MLflow Model Versioning & Lifecycle Registry
+**File:** `backend/mlops/setup_model_versioning.py`
+
+```python
+# 1. Register Candidate Model Version 1 (Pre-Release / Staging)
+client.create_model_version(
+    name="AssessmentChampionPredictor",
+    source=f"{dt_run.info.artifact_uri}/model",
+    run_id=dt_run.info.run_id,
+    description="v1: Decision Tree Candidate Baseline (Accuracy: 72.04%, ROC-AUC: 0.7885).",
+    tags={"stage": "Staging", "status": "Candidate Baseline", "accuracy": "72.04%"}
+)
+client.transition_model_version_stage(name="AssessmentChampionPredictor", version="1", stage="Staging")
+client.set_registered_model_alias(name="AssessmentChampionPredictor", alias="challenger", version="1")
+
+# 2. Register Champion Model Version 2 (Active Production)
+client.create_model_version(
+    name="AssessmentChampionPredictor",
+    source=f"{rf_run.info.artifact_uri}/model",
+    run_id=rf_run.info.run_id,
+    description="v2: Random Forest Champion Model (N=8,528 Students Benchmark, Accuracy: 73.51%, ROC-AUC: 0.7949).",
+    tags={"stage": "Production", "status": "Production-Approved", "accuracy": "73.51%"}
+)
+client.transition_model_version_stage(name="AssessmentChampionPredictor", version="2", stage="Production")
+client.set_registered_model_alias(name="AssessmentChampionPredictor", alias="champion", version="2")
+```
+
+### 🗣️ What to Explain to the Evaluators:
+> *"In MLflow, we don't just log raw metric numbers; we implement **Model Versioning and Lifecycle Management** in the Model Registry. Under `AssessmentChampionPredictor`:
+> - **Version 1 (`v1`)** is our Candidate Baseline (Decision Tree, 72.04% accuracy), assigned to the `Staging` stage and aliased as `@challenger`.
+> - **Version 2 (`v2`)** is our Champion Model (Random Forest, 73.51% accuracy, 0.795 ROC-AUC), promoted to the `Production` stage and aliased as `@champion`.
+> - Our FastAPI serving layer loads the active model dynamically via `@champion`. When a better model is trained in the future, we simply update the `@champion` pointer in MLflow without touching or redeploying application code!"*
+
+---
+
+## 📌 Snippet 9: MLflow Artifacts Structure (Pipeline, Docker & DVC)
+**Location in MLflow UI:** `http://localhost:5000/#/experiments/1/runs/<champion_run_id>/artifacts`
+
+```
+mlflow_artifacts/
+├── pipeline/
+│   ├── inference_pipeline.joblib      # Complete Scikit-Learn Pipeline (StandardScaler + Random Forest)
+│   └── pipeline_architecture.json     # 25-feature pipeline specification & decision threshold
+├── docker/
+│   ├── Dockerfile                     # Multi-stage hardened production containerfile
+│   ├── docker-compose.yml             # Container service orchestration
+│   ├── docker_image_manifest.json     # Port 8005, appuser (UID 1001), healthcheck spec
+│   ├── containerization_report.md     # Production container verification documentation
+│   └── deploy_docker.sh               # One-click deployment script
+├── dvc_pipeline/
+│   ├── dvc.yaml                       # Reproducible data DAG stages (validate_data -> evaluate_model)
+│   └── dvc_pipeline_dag.json          # Pipeline dependency graph definition
+├── model/
+│   ├── random_forest.joblib           # Trained Champion Model weights
+│   ├── MLmodel                        # MLflow Model packaging manifest & schema
+│   ├── conda.yaml                     # Reproducible conda environment
+│   └── requirements.txt               # Pinned Python package dependencies
+├── metadata/
+│   └── feature_metadata.json          # 25 input columns, scaler means, and variances
+└── reports/
+    └── metrics.json                   # Test set metrics (Accuracy: 73.51%, ROC-AUC: 0.795)
+```
+
+### 🗣️ What to Explain to the Evaluators:
+> *"In MLflow, under the **Artifacts** tab of our Champion Model, we bundle the complete production deployment package:
+> 1. **`pipeline/`:** Contains the end-to-end inference pipeline combining the 25-feature standardizer and the Random Forest classifier.
+> 2. **`docker/`:** Contains our hardened multi-stage Dockerfile, container compose manifest, and active healthcheck specifications.
+> 3. **`dvc_pipeline/`:** Contains our reproducible DVC DAG manifest (`dvc.yaml`).
+> 4. **`model/` & `reports/`:** Contains the serialized model weights, environment specifications, and validation reports."*
+
+---
+
 ## 🎯 5 Golden Rules for Tomorrow's Presentation:
 1. **Always refer to the dataset as:** *"CareerMap benchmark dataset from Mendeley Data, DOI: 10.17632/5z68cvxssn.1, consisting of 8,528 verified student profiles."*
 2. **Always refer to the champion model as:** *"Random Forest with 100 de-correlated estimators and max_depth=7, achieving 73.51% test accuracy and 0.795 ROC-AUC on a held-out test split of 1,706 students."*
@@ -354,3 +426,4 @@ const runEvaluation = async () => {
    - MLflow: `mlflow ui --port 5000`
    - Docker: `docker ps` or `curl http://localhost:8005/health`
    - Tests: `python -m pytest`
+
