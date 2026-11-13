@@ -399,14 +399,23 @@ export default function CenturySkillsAssessment() {
                       Your aggregate skill profile exceeds the threshold benchmark (P &ge; 50%) for <strong>{selectedRole}</strong>. 
                       To validate that your self-reported ratings align with actual engineering competence, take the 10-question 21st-century skills cross-verification quiz directly.
                     </p>
-                    <button
-                      onClick={startVerificationQuiz}
-                      disabled={quizLoading}
-                      className="btn"
-                      style={{ background: '#059669', padding: '12px 28px', fontSize: '0.95rem' }}
-                    >
-                      {quizLoading ? '⏳ Loading Quiz...' : '🎯 Take 21st-Century Cross-Verification Quiz (10 Qs)'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <button
+                        onClick={startVerificationQuiz}
+                        disabled={quizLoading}
+                        className="btn"
+                        style={{ background: '#059669', padding: '12px 28px', fontSize: '0.95rem' }}
+                      >
+                        {quizLoading ? '⏳ Loading Quiz...' : '🎯 Take 21st-Century Cross-Verification Quiz (10 Qs)'}
+                      </button>
+                      <button
+                        onClick={() => navigate('/quiz')}
+                        className="btn"
+                        style={{ background: '#4f46e5', padding: '12px 22px', fontSize: '0.9rem' }}
+                      >
+                        🧠 Open Full Quiz Session
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
