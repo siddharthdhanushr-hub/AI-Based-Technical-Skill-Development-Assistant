@@ -14,15 +14,15 @@ function Navigation() {
         <h2>AI Based Technical Skill Development Assistant</h2>
       </div>
       <div className="nav-links">
-        <Link to="/" className="nav-link">Dashboard</Link>
-        <Link to="/century-skills" className="nav-link" style={{ fontWeight: 600, color: '#4f46e5' }}>
+        <Link to="/" className="nav-link" style={{ fontWeight: 700, color: '#4f46e5' }}>
           🎯 21st Century Assessment
         </Link>
-        <Link to="/tracker" className="nav-link">Skill Tracker</Link>
-        <Link to="/skills" className="nav-link">Skill Manager</Link>
-        <Link to="/quiz" className="nav-link">Skill Quizzes</Link>
-        <Link to="/mlops-insights" className="nav-link">📊 MLOps Insights</Link>
+        <Link to="/tracker" className="nav-link">📊 Skill Tracker</Link>
+        <Link to="/quiz" className="nav-link">🧠 Skill Quizzes</Link>
+        <Link to="/skills" className="nav-link">🛠️ Skill Manager</Link>
+        <Link to="/mlops-insights" className="nav-link">📈 MLOps Insights</Link>
         <Link to="/performance" className="nav-link">Performance</Link>
+        <Link to="/dashboard" className="nav-link" style={{ opacity: 0.85 }}>Overview</Link>
       </div>
     </nav>
   );
@@ -34,14 +34,16 @@ function App() {
       <Navigation />
       <div className="container">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          {/* Default Landing Page: 21st-Century Technical Skill Confidence Assessment */}
+          <Route path="/" element={<CenturySkillsAssessment />} />
           <Route path="/century-skills" element={<CenturySkillsAssessment />} />
-          <Route path="/mlops-insights" element={<MLOpsInsights />} />
-          <Route path="/skills" element={<SkillManager />} />
-          <Route path="/syllabus" element={<Navigate to="/skills" replace />} />
           <Route path="/tracker" element={<StudyTracker />} />
           <Route path="/quiz" element={<QuizSession />} />
+          <Route path="/skills" element={<SkillManager />} />
+          <Route path="/syllabus" element={<Navigate to="/skills" replace />} />
+          <Route path="/mlops-insights" element={<MLOpsInsights />} />
           <Route path="/performance" element={<PerformanceAnalytics />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           
           {/* Hidden/Redirected routes */}
           <Route path="/profile" element={<Navigate to="/" replace />} />

@@ -92,6 +92,13 @@ def startup_export():
     finally:
         db.close()
 
+    # Initialize MLflow Tracing and Observability (Experiment 1, http://localhost:5000)
+    try:
+        from backend.mlops.tracing import init_tracing
+        init_tracing()
+    except Exception as e:
+        print(f"MLflow tracing init note: {e}")
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -113,6 +120,20 @@ app.include_router(mlops_router, prefix="/api/mlops", tags=["MLOps"])
 def root():
     return {"message": "Welcome to the AIML System API"}
 
+@app.get("/health")
+def healthcheck():
+    return {
+        "status": "healthy",
+        "service": "AI Based Technical Skill Development Assistant",
+        "model_champion": "AssessmentChampionPredictor:1",
+        "stage": "Production"
+    }
+
 @app.on_event("shutdown")
 def on_shutdown():
+    try:
+        import mlflow
+        mlflow.flush_trace_async_logging()
+    except Exception:
+        pass
     print("FastAPI Backend shutdown complete.")

@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     LLM_TIMEOUT: float = 2.0
     LLM_MAX_RETRIES: int = 0
 
+    # MLflow Tracing & Observability
+    MLFLOW_TRACKING_URI: str = "http://localhost:5000"
+    MLFLOW_EXPERIMENT_ID: str = "1"
+
     class Config:
         env_file = str(_env_path)
         env_file_encoding = "utf-8"

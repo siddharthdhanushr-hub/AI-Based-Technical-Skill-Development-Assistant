@@ -8,7 +8,5 @@ uploads/
 backend/env/
 env/
 scratch/
-dist/
-*.pyc
-.pytest_cache/
-.DS_Store
+mlruns/
+mlruns_artifacts/
