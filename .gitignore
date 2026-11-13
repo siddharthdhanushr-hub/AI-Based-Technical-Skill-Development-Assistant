@@ -8,3 +8,5 @@ uploads/
 backend/env/
 env/
 scratch/
+mlruns/
+mlruns_artifacts/
